@@ -1,5 +1,7 @@
-from fasthtml import rt
+from fasthtml import APIRouter
 from fasthtml.common import Div, A
+
+rt = APIRouter()
 
 @rt("/mobile-menu")
 def mobile_menu():

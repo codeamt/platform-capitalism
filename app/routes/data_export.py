@@ -1,9 +1,11 @@
-from fasthtml import rt
+from fasthtml import APIRouter
 from app.simulation.environment import GLOBAL_ENVIRONMENT
 import json
 import csv
 from io import StringIO
 from fasthtml.common import Response
+
+rt = APIRouter()
 
 @rt("/export/json")
 def export_json():

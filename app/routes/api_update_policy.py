@@ -1,7 +1,9 @@
-from fasthtml import rt
+from fasthtml import APIRouter
 from fasthtml.common import Redirect
 from app.simulation.environment import GLOBAL_ENVIRONMENT
 from app.simulation.policy_engine.config import PolicyConfig
+
+rt = APIRouter()
 
 @rt("/api/update-policy", methods=["POST"])
 def update_policy(request):

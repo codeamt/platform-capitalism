@@ -1,7 +1,9 @@
-from fasthtml import rt
+from fasthtml import APIRouter
 from fasthtml.common import Redirect
 from app.simulation.scenarios import load_scenario, ALL_SCENARIOS
 from app.simulation.environment import GLOBAL_ENVIRONMENT
+
+rt = APIRouter()
 
 @rt("/scenarios/load", methods=["POST"])
 def load_scenario_route(request):

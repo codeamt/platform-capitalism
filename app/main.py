@@ -1,19 +1,16 @@
 from fasthtml import fast_app, Mount, serve
 from fasthtml.common import Div, StaticFiles
 
-# Import pages so their routes register
-import app.pages.dashboard
-import app.pages.creator_studio
-import app.pages.governance_lab
-import app.pages.transparency
-import app.pages.network
-import app.pages.scenarios
-
 # Import route modules
 import app.routes.ui_mobile_menu
 import app.routes.data_export
 import app.routes.api_update_policy
 import app.routes.api_load_scenario
+import app.routes.dashboard
+import app.routes.creator_studio
+import app.routes.governance_lab
+import app.routes.network
+import app.routes.scenarios
 
 # Simulation environment & agent bootstrapping
 from app.simulation.environment import GLOBAL_ENVIRONMENT
@@ -27,17 +24,15 @@ if not GLOBAL_ENVIRONMENT.agents:
     )
 
 app, rt = fast_app(routes=[
-    Mount("/", app.pages.dashboard.dashboard),
-    Mount("/creator-studio", app.pages.creator_studio.creator_studio),
-    Mount("/governance-lab", app.pages.governance_lab.governance_lab),
-    Mount("/transparency", app.pages.transparency.transparency),
-    Mount("/network", app.pages.network.network),
-    Mount("/scenarios", app.pages.scenarios.scenarios),
-    Mount("/api/update-policy", app.routes.api_update_policy.update_policy),
-    Mount("/api/load-scenario", app.routes.api_load_scenario.load_scenario_route),
-    Mount("/export/json", app.routes.data_export.export_json),
-    Mount("/export/csv", app.routes.data_export.export_csv),
-    Mount("/mobile-menu", app.routes.ui_mobile_menu.mobile_menu),
+    Mount("/api/update-policy", app.routes.api_update_policy.rt),
+    Mount("/api/load-scenario", app.routes.api_load_scenario.rt),
+    Mount("/export/json", app.routes.data_export.rt),
+    Mount("/mobile-menu", app.routes.ui_mobile_menu.rt),
+    Mount("/dashboard", app.routes.dashboard.rt),
+    Mount("/creator-studio", app.routes.creator_studio.rt),
+    Mount("/governance-lab", app.routes.governance_lab.rt),
+    Mount("/network", app.routes.network.rt),
+    Mount("/scenarios", app.routes.scenarios.rt),
 ], 
 static_files=StaticFiles(directory="static", html=False),
 )

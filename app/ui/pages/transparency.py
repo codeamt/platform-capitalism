@@ -1,11 +1,9 @@
-from fasthtml import rt
-from fasthtml.common import Div, H1
-from app.components import Layout, transparency_panel
+from fasthtml.common import Div, H1, Main
+from app.components import transparency_panel
 from app.simulation.environment import GLOBAL_ENVIRONMENT
 
-@rt("/transparency")
-def transparency_page():
-    layout = Layout("Transparency")
+
+def TransparencyPage():
     cfg = GLOBAL_ENVIRONMENT.policy_engine.config
     events = GLOBAL_ENVIRONMENT.last_tick_explanations
 
@@ -14,4 +12,4 @@ def transparency_page():
         transparency_panel(cfg, events),
         cls="space-y-4"
     )
-    return layout.wrap(content, active_path="/transparency")
+    return Main(content)

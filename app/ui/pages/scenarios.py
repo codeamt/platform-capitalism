@@ -1,13 +1,7 @@
-from fasthtml import rt
-from fasthtml.common import Div, H1, Form, Select, Option, Button
-from app.components import Layout
-from app.simulation.scenarios import ALL_SCENARIOS, load_scenario
-from app.simulation.environment import GLOBAL_ENVIRONMENT
+from fasthtml.common import Div, H1, Form, Select, Option, Button, Main
+from app.simulation.scenarios import ALL_SCENARIOS
 
-@rt("/scenarios")
-def scenarios_page():
-    layout = Layout("Scenarios")
-
+def ScenariosPage():
     options = [Option(name) for name in ALL_SCENARIOS.keys()]
 
     content = Div(
@@ -20,4 +14,4 @@ def scenarios_page():
         ),
         cls="space-y-4"
     )
-    return layout.wrap(content, active_path="/scenarios")
+    return Main(content)
