@@ -1,0 +1,14 @@
+[project]
+name = "platform-capitalism"
+version = "0.1.0"
+description = "Mears-grounded creator labor simulation with FastHTML UI"
+authors = [{ name = "codeamt" }]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "python-fasthtml",
+    "monsterui>=1.0.32",
+]
+
+[tool.uv]
+compile-bytecode = false

@@ -1,0 +1,16 @@
+version: 1
+serviceName: platform-simulation
+region: us-east-1  # change as needed (e.g., us-west-2)
+
+containers:
+  app:
+    image: ghcr.io/codeamt/platform-simulation:latest  # or local image reference
+    command: ["python", "main.py"]
+    ports:
+      - 8080
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: info
+      AWS_DEFAULT_REGION: us-east-1
+      DB_URL: ${DB_URL}
+      SECRET_KEY: ${SECRET_KEY}
