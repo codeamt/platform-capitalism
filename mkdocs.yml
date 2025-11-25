@@ -60,7 +60,28 @@ markdown_extensions:
 
 plugins:
   - search
-  - mermaid2
+  - mermaid2:
+      arguments:
+        theme: |
+          ^(JSON.parse(__md_get("__palette").index == 1)) ? 'dark' : 'default'
+        themeVariables:
+          primaryColor: '#61DAFB'
+          primaryTextColor: '#000'
+          primaryBorderColor: '#333'
+          lineColor: '#333'
+          secondaryColor: '#90EE90'
+          tertiaryColor: '#FFB6C1'
+          noteBkgColor: '#DDA0DD'
+          noteTextColor: '#000'
+          noteBorderColor: '#333'
+          textColor: '#000'
+          mainBkg: '#f9f9f9'
+          nodeBorder: '#333'
+          clusterBkg: '#fff'
+          clusterBorder: '#333'
+          titleColor: '#000'
+          edgeLabelBackground: '#fff'
+          nodeTextColor: '#000'
 
 nav:
   - Home: index.md
