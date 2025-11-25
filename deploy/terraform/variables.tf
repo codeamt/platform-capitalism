@@ -5,22 +5,20 @@ variable "region" {
 
 variable "service_name" {
   type    = string
-  default = "platform-simulation"
+  default = "platform-capitalism"
+  description = "Name of the Lightsail container service"
 }
 
 variable "image" {
   description = "Container image for Lightsail"
   type        = string
+  default     = "ghcr.io/YOUR_USERNAME/platform-capitalism:latest"
 }
 
-variable "secret_key" {
+variable "environment" {
   type        = string
-  description = "App secret key"
-}
-
-variable "db_url" {
-  type        = string
-  description = "Database URL"
+  default     = "production"
+  description = "Deployment environment"
 }
 
 variable "power" {

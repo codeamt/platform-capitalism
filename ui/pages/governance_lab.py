@@ -1,5 +1,5 @@
 from fasthtml.common import Div, H1, P
-from ui.components import policy_controls, scenario_selector, transparency_panel
+from ui.components import policy_controls, scenario_selector, transparency_panel, preset_selector
 from simulation.environment import GLOBAL_ENVIRONMENT
 
 
@@ -12,13 +12,8 @@ def GovernanceLabPage():
     cfg = GLOBAL_ENVIRONMENT.policy_engine.config
     events = GLOBAL_ENVIRONMENT.last_tick_explanations
     
-    # Get current scenario name (if any)
-    from simulation.scenarios.presets import ALL_SCENARIOS
-    current_scenario = None
-    for name, scenario in ALL_SCENARIOS.items():
-        if scenario.policy.mode == cfg.mode:
-            current_scenario = name
-            break
+    # Get current scenario name from environment (or default)
+    current_scenario = GLOBAL_ENVIRONMENT.current_scenario or "Creator-First Platform"
     
     content = Div(
         # Header
@@ -28,16 +23,16 @@ def GovernanceLabPage():
         
         # Two-column layout
         Div(
-            # Left: Scenario Selection
+            # Left: Scenario Selection + Transparency
             Div(
-                scenario_selector(current_scenario or "Creator-First Platform", source="governance"),
+                scenario_selector(current_scenario, source="governance"),
+                transparency_panel(cfg, events),
                 cls="space-y-4"
             ),
             
-            # Right: Policy Controls + Transparency
+            # Right: Policy Controls
             Div(
                 policy_controls(cfg.mode, cfg),
-                transparency_panel(cfg, events),
                 cls="space-y-4"
             ),
             

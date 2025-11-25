@@ -32,8 +32,56 @@ class PolicyEngine:
             "quality": pr.quality * p.quality_weight,
             "diversity": pr.diversity * p.diversity_weight,
             "consistency": pr.consistency * p.consistency_weight,
-            "break_bonus": (1 - pr.burnout) * p.break_reward,
         }
+        
+        # Content volume reward (based on posts generated this tick)
+        posts_generated = getattr(agent, '_current_tick_posts', 1.0)  # Default to 1.0 if not set
+        # Normalize posts_generated (typically 0-10 range) to a 0-1 scale for reward calculation
+        normalized_volume = min(1.0, posts_generated / 10.0)
+        base_rewards["volume"] = normalized_volume * p.volume_weight  # Volume contributes to rewards
+        
+        # Break reward: Reward agents for resting when burned out
+        # If burnout is high (>0.5) and volume is low (<0.3), reward the break
+        if pr.burnout > 0.5 and normalized_volume < 0.3:
+            base_rewards["break_bonus"] = pr.burnout * p.break_reward  # Higher burnout = bigger break reward
+        else:
+            base_rewards["break_bonus"] = 0.0
+        
+        # Monetary reward: Simulates platform payments (CPM, ad revenue, tips, etc.)
+        # Base payment per post, with bonuses for quality and engagement
+        if posts_generated > 0:
+            # Base payment per post
+            base_payment = posts_generated * p.base_payment
+            
+            # Quality bonus: High quality content gets paid more
+            quality_bonus = 1.0 + (pr.quality * (p.quality_bonus_multiplier - 1.0))
+            
+            # Engagement bonus: Consistency + diversity proxy for audience engagement
+            engagement_score = (pr.consistency + pr.diversity) / 2.0
+            engagement_bonus = 1.0 + (engagement_score * (p.engagement_multiplier - 1.0))
+            
+            # Total monetary reward (normalized 0-1 scale)
+            base_rewards["monetary"] = base_payment * quality_bonus * engagement_bonus
+            
+            # CPM-based earnings (realistic dollar amounts)
+            if p.enable_cpm_earnings:
+                # Calculate total views: posts × avg_views_per_post
+                total_views = posts_generated * p.avg_views_per_post
+                
+                # Base CPM earnings: (views / 1000) × CPM rate
+                base_cpm_earnings = (total_views / 1000.0) * p.cpm_rate
+                
+                # Apply quality and engagement multipliers
+                # High quality + high engagement = more views/better CPM
+                final_cpm_earnings = base_cpm_earnings * quality_bonus * engagement_bonus
+                
+                # Store earnings in dollars (not normalized)
+                base_rewards["cpm_earnings"] = round(final_cpm_earnings, 2)
+            else:
+                base_rewards["cpm_earnings"] = 0.0
+        else:
+            base_rewards["monetary"] = 0.0
+            base_rewards["cpm_earnings"] = 0.0
         
         # Apply wellbeing modifiers (differential reinforcement cares about creator health)
         if p.mode == "differential":
@@ -56,6 +104,7 @@ class PolicyEngine:
         base_rewards["quality"] *= strategy_metrics.get("quality", 1.0)
         base_rewards["consistency"] *= strategy_metrics.get("consistency", 1.0)
         volume_multiplier = strategy_metrics.get("volume", 1.0)
+        base_rewards["volume"] *= volume_multiplier  # Apply volume strategy multiplier
 
         # Apply mode-specific transformations
         if p.mode == "intermittent":
@@ -64,7 +113,9 @@ class PolicyEngine:
             rewards = self._apply_hybrid(base_rewards, agent)
         else:  # differential
             rewards = base_rewards
-            rewards["final_reward"] = sum(rewards.values()) * volume_multiplier
+            # Calculate final_reward excluding cpm_earnings (it's a tracking metric, not a reward)
+            reward_sum = sum(v for k, v in rewards.items() if k != "cpm_earnings")
+            rewards["final_reward"] = reward_sum * volume_multiplier
             rewards["predictability"] = 1.0  # Fully predictable
         
         # Track for analysis
@@ -116,14 +167,20 @@ class PolicyEngine:
         
         # When reward DOES come, add high variance (jackpot effect)
         variance_multiplier = random.uniform(0.5, p.intermittent_variance)
-        total = sum(base_rewards.values()) * variance_multiplier
+        # Exclude cpm_earnings from reward sum (it's a tracking metric)
+        reward_sum = sum(v for k, v in base_rewards.items() if k != "cpm_earnings")
+        total = reward_sum * variance_multiplier
         
         # Intermittent rewards are opaque - creator doesn't know WHY they got it
-        return {
+        result = {
             "final_reward": total,
             "predictability": 0.1,  # Very low predictability
             "intermittent_hit": total * 0.2,  # Dopamine spike from unpredictability
         }
+        # Preserve cpm_earnings for tracking
+        if "cpm_earnings" in base_rewards:
+            result["cpm_earnings"] = base_rewards["cpm_earnings"]
+        return result
     
     # ---------------------------------------------------------
     # Hybrid mode (compromise approach)
@@ -133,28 +190,27 @@ class PolicyEngine:
         p = self.config
         
         # Differential component (predictable)
-        differential_total = sum(base_rewards.values())
+        # Exclude cpm_earnings from reward sum
+        reward_sum = sum(v for k, v in base_rewards.items() if k != "cpm_earnings")
+        differential_total = reward_sum
         
         # Intermittent component (unpredictable)
         intermittent_result = self._apply_intermittent(base_rewards.copy(), agent)
         intermittent_total = intermittent_result.get("final_reward", 0)
         
         # Blend based on hybrid_mix parameter
-        final_reward = (
-            differential_total * (1 - p.hybrid_mix) + 
-            intermittent_total * p.hybrid_mix
-        )
+        blended_total = (differential_total * p.hybrid_mix) + (intermittent_total * (1 - p.hybrid_mix))
         
-        # Predictability is also blended
-        predictability = 1.0 * (1 - p.hybrid_mix) + 0.1 * p.hybrid_mix
-        
-        return {
-            **base_rewards,
-            "final_reward": final_reward,
-            "predictability": predictability,
-            "differential_component": differential_total * (1 - p.hybrid_mix),
-            "intermittent_component": intermittent_total * p.hybrid_mix,
+        result = {
+            "final_reward": blended_total,
+            "predictability": p.hybrid_mix,  # Predictability scales with differential weight
+            "differential_component": differential_total * p.hybrid_mix,
+            "intermittent_component": intermittent_total * (1 - p.hybrid_mix)
         }
+        # Preserve cpm_earnings for tracking
+        if "cpm_earnings" in base_rewards:
+            result["cpm_earnings"] = base_rewards["cpm_earnings"]
+        return result
     
     # ---------------------------------------------------------
     # Analysis helpers

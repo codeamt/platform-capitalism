@@ -1,6 +1,6 @@
 from fasthtml.common import APIRouter
 from simulation.environment import GLOBAL_ENVIRONMENT
-from simulation.policy_engine.config import PolicyConfig
+from simulation.policy_engine.config import PolicyConfig, get_preset
 from ui.pages.dashboard import DashboardPage
 from ui.pages.governance_lab import GovernanceLabPage
 
@@ -11,6 +11,7 @@ def update_policy(
     quality_weight: float = None,
     diversity_weight: float = None,
     consistency_weight: float = None,
+    volume_weight: float = None,
     break_reward: float = None,
     burnout_penalty: float = None,
     sustainability_bonus: float = None,
@@ -28,6 +29,8 @@ def update_policy(
         cfg.diversity_weight = diversity_weight
     if consistency_weight is not None:
         cfg.consistency_weight = consistency_weight
+    if volume_weight is not None:
+        cfg.volume_weight = volume_weight
     if break_reward is not None:
         cfg.break_reward = break_reward
     if burnout_penalty is not None:
@@ -53,15 +56,20 @@ def run_tick():
 @rt("/api/reset", methods=["POST"])
 def reset_simulation():
     """Reset the simulation and return updated dashboard."""
-    # Reset all agents to initial state
-    for agent in GLOBAL_ENVIRONMENT.agents:
-        agent.history = []
-        # Reset traits to initial values
-        agent.profile.burnout = 0.0
-        agent.profile.arousal = 0.5
-        agent.profile.addiction_drive = agent.profile.addiction_drive  # Keep personality trait
-    
-    GLOBAL_ENVIRONMENT.tick_count = 0
-    GLOBAL_ENVIRONMENT.last_tick_explanations = []
-    
+    GLOBAL_ENVIRONMENT.reset_full_state()
     return DashboardPage()
+
+@rt("/api/load-preset", methods=["POST"])
+def load_preset(preset: str):
+    """Load a policy preset configuration and return updated governance lab.
+    
+    Args:
+        preset: Name of preset to load ("optimal", "exploitative", "balanced", "cooperative")
+    """
+    try:
+        preset_config = get_preset(preset)
+        GLOBAL_ENVIRONMENT.policy_engine.config = preset_config
+        return GovernanceLabPage()
+    except ValueError as e:
+        # If invalid preset, just return current page
+        return GovernanceLabPage()

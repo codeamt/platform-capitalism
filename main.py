@@ -1,3 +1,4 @@
+import os
 from fasthtml.common import fast_app, serve, Div
 from monsterui.all import *
 
@@ -19,16 +20,29 @@ from simulation.agents.agent import Agent
 from simulation.agents.profile import AgentProfile
 from simulation.scenarios import load_scenario
 
-# If no agents present (fresh start), initialize demo agents
-if not GLOBAL_ENVIRONMENT.agents:
-    GLOBAL_ENVIRONMENT.agents.extend(
-        [Agent(AgentProfile(id=i)) for i in range(5)]
-    )
-    # Load default scenario to apply initial agent traits
-    load_scenario(GLOBAL_ENVIRONMENT, "Creator-First Platform")
+
+def bootstrap_simulation(env, num_agents=5, default_scenario="Creator-First Platform"):
+    """Initialize demo agents and load default scenario.
+    
+    Args:
+        env: Environment instance to bootstrap
+        num_agents: Number of demo agents to create
+        default_scenario: Name of scenario to load initially
+    """
+    if not env.agents:
+        env.agents.extend(
+            [Agent(AgentProfile(id=i)) for i in range(num_agents)]
+        )
+        # Load default scenario to apply initial agent traits
+        load_scenario(env, default_scenario)
+
+
+# Bootstrap simulation on startup (only if no agents present)
+bootstrap_simulation(GLOBAL_ENVIRONMENT)
 
 # Create FastHTML app
-app, rt = fast_app(hdrs=Theme.slate.headers(),secret_key=None)
+# Secret key from environment variable for security (None is acceptable for dev)
+app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=os.getenv("SECRET_KEY"))
 
 # Register all APIRouters with the app using FastHTML's .to_app() method
 for router in [

@@ -102,9 +102,15 @@ def _reward_chart(ticks, rewards, mean_reward, regime):
         H3("Reward Distribution Over Time", cls="text-sm font-semibold text-gray-300 mb-2"),
         Canvas(id="rewardTimelineChart", style="height: 250px;"),
         Script(f"""
-            (function() {{
+            setTimeout(function() {{
                 const ctx = document.getElementById('rewardTimelineChart');
                 if (!ctx || !window.Chart) return;
+                
+                // Destroy existing chart if it exists
+                const existingChart = Chart.getChart('rewardTimelineChart');
+                if (existingChart) {{
+                    existingChart.destroy();
+                }}
                 
                 new Chart(ctx, {{
                     type: 'line',
@@ -163,7 +169,7 @@ def _reward_chart(ticks, rewards, mean_reward, regime):
                         }}
                     }}
                 }});
-            }})();
+            }}, 100);
         """),
         cls="mb-4"
     )

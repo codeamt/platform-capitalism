@@ -161,9 +161,15 @@ def _health_trend_chart(history):
         H3("📈 Health Trend (Last 20 Ticks)", cls="text-sm font-semibold text-gray-300 mb-2 mt-4"),
         Canvas(id="healthTrendChart", style="height: 200px; max-height: 200px;"),
         Script(f"""
-            (function() {{
+            setTimeout(function() {{
                 const ctx = document.getElementById('healthTrendChart');
                 if (!ctx || !window.Chart) return;
+                
+                // Destroy existing chart if it exists
+                const existingChart = Chart.getChart('healthTrendChart');
+                if (existingChart) {{
+                    existingChart.destroy();
+                }}
                 
                 new Chart(ctx, {{
                     type: 'line',
@@ -239,7 +245,7 @@ def _health_trend_chart(history):
                         }}
                     }}
                 }});
-            }})();
+            }}, 100);
         """),
         cls="pt-4 border-t mb-4"
     )

@@ -69,7 +69,7 @@ def DashboardPage():
                 # Tab 1: Simulation (Selector + Activity Feed in 3-column grid)
                 Li(
                     Div(
-                        scenario_selector(),
+                        scenario_selector(GLOBAL_ENVIRONMENT.current_scenario or "Creator-First Platform", source="dashboard"),
                         activity_feed(),
                         cls="grid grid-cols-1 lg:grid-cols-3 gap-6",
                         style="grid-template-columns: 1fr 2fr;"
@@ -109,7 +109,13 @@ def _status_bar(tick_count, summary, agents):
     avg_addiction = summary.get("avg_addiction", 0)
     avg_resilience = summary.get("avg_resilience", 0)
     burnout_rate = summary.get("burnout_rate", 0)
-    avg_reward = summary.get("avg_reward", 0)
+    
+    # Calculate total platform earnings
+    total_earnings = sum(
+        sum(h.get('cpm_earnings', 0) for h in agent.history)
+        for agent in agents
+    )
+    
     mode = GLOBAL_ENVIRONMENT.policy_engine.config.mode
     
     # Determine status color based on burnout
@@ -128,18 +134,18 @@ def _status_bar(tick_count, summary, agents):
             # Left: Status indicator
             Div(
                 Span(status_text, cls=f"px-3 py-1 rounded-full text-sm font-semibold text-white {status_color}"),
-                Span(f"Tick {tick_count}", cls="text-sm font-semibold text-gray-300 ml-4"),
+                Span(f"Day {tick_count}", cls="text-sm font-semibold text-gray-300 ml-4"),
                 cls="flex items-center"
             ),
             
             # Right: All metrics
             Div(
                 Span(f"👥 {num_agents} Agents", cls="text-sm text-gray-400 mr-4"),
+                Span(f"💰 Platform Earnings: ${total_earnings:.2f}", cls="text-sm font-semibold text-green-400 mr-4"),
                 Span(f"🔥 Burnout: {avg_burnout:.2f}", cls="text-sm text-gray-400 mr-4"),
                 Span(f"🎮 Addiction: {avg_addiction:.2f}", cls="text-sm text-gray-400 mr-4"),
                 Span(f"🛡️ Resilience: {avg_resilience:.2f}", cls="text-sm text-gray-400 mr-4"),
                 Span(f"📈 Burnout Rate: {burnout_rate:.2f}", cls="text-sm text-gray-400 mr-4"),
-                Span(f"🎯 Reward: {avg_reward:.2f}", cls="text-sm text-gray-400 mr-4"),
                 Span(f"Mode: {mode.capitalize()}", cls="text-sm text-gray-400"),
                 cls="flex items-center"
             ),
@@ -180,9 +186,15 @@ def _health_trend_only(history):
                 H2("🎯 Agent Distribution", cls="text-2xl font-bold text-gray-100 mb-4"),
                 Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    (function() {{
+                    setTimeout(function() {{
                         const ctx = document.getElementById('agentDistributionPie');
                         if (!ctx) return;
+                        
+                        // Destroy existing chart if it exists
+                        const existingChart = Chart.getChart('agentDistributionPie');
+                        if (existingChart) {{
+                            existingChart.destroy();
+                        }}
                         
                         new Chart(ctx, {{
                             type: 'pie',
@@ -210,7 +222,7 @@ def _health_trend_only(history):
                                 }}
                             }}
                         }});
-                    }})();
+                    }}, 100);
                 """)
             ),
             cls="bg-gray-800 border-gray-700"
@@ -226,9 +238,15 @@ def _health_trend_only(history):
                 H2("🎯 Agent Distribution", cls="text-2xl font-bold text-gray-100 mb-4"),
                 Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    (function() {{
+                    setTimeout(function() {{
                         const ctx = document.getElementById('agentDistributionPie');
                         if (!ctx) return;
+                        
+                        // Destroy existing chart if it exists
+                        const existingChart = Chart.getChart('agentDistributionPie');
+                        if (existingChart) {{
+                            existingChart.destroy();
+                        }}
                         
                         new Chart(ctx, {{
                             type: 'pie',
@@ -256,7 +274,7 @@ def _health_trend_only(history):
                                 }}
                             }}
                         }});
-                    }})();
+                    }}, 100);
                 """)
             ),
             cls="bg-gray-800 border-gray-700 mb-6"
@@ -269,9 +287,15 @@ def _health_trend_only(history):
                 P("Track creator arousal/engagement over time", cls="text-sm text-gray-400 mb-4"),
                 Canvas(id="arousalTrendChart", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    (function() {{
+                    setTimeout(function() {{
                         const ctx = document.getElementById('arousalTrendChart');
                         if (!ctx) return;
+                        
+                        // Destroy existing chart if it exists
+                        const existingChart = Chart.getChart('arousalTrendChart');
+                        if (existingChart) {{
+                            existingChart.destroy();
+                        }}
                         
                         new Chart(ctx, {{
                             type: 'line',
@@ -327,7 +351,7 @@ def _health_trend_only(history):
                                 }}
                             }}
                         }});
-                    }})();
+                    }}, 100);
                 """)
             ),
             cls="bg-gray-800 border-gray-700"

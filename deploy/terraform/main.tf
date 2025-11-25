@@ -4,9 +4,15 @@ provider "aws" {
 
 resource "aws_lightsail_container_service" "simulation" {
   name        = var.service_name
-  power       = var.power
-  scale       = var.scale
+  power       = var.power  # micro, small, medium, large, xlarge
+  scale       = var.scale  # Number of instances (1-20)
   is_disabled = false
+  
+  tags = {
+    Project     = "Platform Capitalism Research"
+    Environment = "production"
+    ManagedBy   = "Terraform"
+  }
 }
 
 resource "aws_lightsail_container_deployment" "deploy" {
@@ -15,17 +21,16 @@ resource "aws_lightsail_container_deployment" "deploy" {
   container {
     container_name = "app"
     image          = var.image
+    command        = ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 
     ports = {
       "8080" = "HTTP"
     }
 
     environment = {
-      ENVIRONMENT       = "production"
-      LOG_LEVEL         = "info"
-      SECRET_KEY        = var.secret_key
-      DB_URL            = var.db_url
-      AWS_DEFAULT_REGION = var.region
+      ENVIRONMENT = var.environment
+      LOG_LEVEL   = "info"
+      PORT        = "8080"
     }
   }
 

@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "name": "platform-capitalism-demo",
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ],
+  "env": {
+    "ENVIRONMENT": "demo",
+    "LOG_LEVEL": "info",
+    "PORT": "8080"
+  },
+  "regions": ["iad1"]
+}

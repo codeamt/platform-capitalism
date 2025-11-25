@@ -1,0 +1,96 @@
+site_name: Platform Capitalism Simulation
+site_description: Research-driven simulation exploring creator wellbeing under different platform governance models
+site_author: Platform Capitalism Research Team
+site_url: https://codeamt.github.io/platform-capitalism
+
+repo_name: codeamt/platform-capitalism
+repo_url: https://github.com/codeamt/platform-capitalism
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mermaid2
+
+nav:
+  - Home: index.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Agent System: architecture/agents.md
+      - Policy Engine: architecture/policy-engine.md
+      - Environment: architecture/environment.md
+      - UI Components: architecture/ui.md
+  - Research:
+      - Theoretical Framework: research/framework.md
+      - CPM Economics: research/cpm-economics.md
+      - State Machine: research/state-machine.md
+      - Capital Conversion: research/capital-conversion.md
+  - Development:
+      - Getting Started: development/getting-started.md
+      - Testing: development/testing.md
+      - Deployment: development/deployment.md
+      - Contributing: development/contributing.md
+  - API Reference:
+      - Agents: api/agents.md
+      - Policy Engine: api/policy-engine.md
+      - Scenarios: api/scenarios.md
+  - Grant Proposal: grant-proposal.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/codeamt/platform-capitalism
+    - icon: fontawesome/solid/book
+      link: https://www.ashleymears.com
+  version:
+    provider: mike

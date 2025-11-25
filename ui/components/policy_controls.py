@@ -1,5 +1,60 @@
-from fasthtml.common import Div, H2, H3, Form, Input, Label, Button, P, Option, Optgroup
+from fasthtml.common import Div, H2, H3, Form, Input, Label, Button, P, Option, Optgroup, Span
 from monsterui.all import Card, CardBody, Select
+
+def preset_selector():
+    """Quick-load buttons for policy presets.
+    
+    Allows users to quickly experiment with different governance models
+    by auto-populating the policy form with preset configurations.
+    """
+    from simulation.policy_engine.config import POLICY_PRESETS
+    
+    return Card(
+        CardBody(
+            H2("⚡ Quick Load Presets", cls="text-xl font-bold mb-3 text-gray-100"),
+            P("Instantly load common policy configurations", cls="text-sm text-gray-400 mb-4"),
+            
+            # Preset buttons grid
+            Div(
+                *[_preset_button(preset_id, preset_data) for preset_id, preset_data in POLICY_PRESETS.items()],
+                cls="grid grid-cols-1 gap-2"
+            ),
+            
+            # Info text
+            P(
+                "💡 Presets auto-populate the policy form below. You can then fine-tune individual parameters.",
+                cls="text-xs text-gray-400 italic mt-4 p-2 bg-gray-700 rounded"
+            )
+        ),
+        cls="bg-gray-800 border-gray-700"
+    )
+
+def _preset_button(preset_id: str, preset_data: dict):
+    """Create a button for a single preset."""
+    # Color coding by preset type
+    colors = {
+        "optimal": "bg-green-600 hover:bg-green-700 border-green-500",
+        "exploitative": "bg-red-600 hover:bg-red-700 border-red-500",
+        "balanced": "bg-blue-600 hover:bg-blue-700 border-blue-500",
+        "cooperative": "bg-purple-600 hover:bg-purple-700 border-purple-500",
+    }
+    color_class = colors.get(preset_id, "bg-gray-600 hover:bg-gray-700 border-gray-500")
+    
+    return Form(
+        Input(type="hidden", name="preset", value=preset_id),
+        Button(
+            Div(
+                Span(preset_data["name"], cls="font-semibold"),
+                P(preset_data["description"], cls="text-xs opacity-90 mt-1"),
+                cls="text-left"
+            ),
+            type="submit",
+            cls=f"w-full px-4 py-3 {color_class} text-white rounded-lg border-2 transition-all"
+        ),
+        hx_post="/api/load-preset",
+        hx_target="#main-content",
+        hx_swap="outerHTML"
+    )
 
 def scenario_selector(current_scenario="Creator-First Platform", source="dashboard"):
     """Dropdown to select between different platform scenarios.
@@ -95,6 +150,7 @@ def policy_controls(mode, cfg):
                     _param_input("Quality Weight", "quality_weight", cfg.quality_weight),
                     _param_input("Diversity Weight", "diversity_weight", cfg.diversity_weight),
                     _param_input("Consistency Weight", "consistency_weight", cfg.consistency_weight),
+                    _param_input("Volume Weight", "volume_weight", cfg.volume_weight),
                     _param_input("Break Reward", "break_reward", cfg.break_reward),
                     cls="mb-4"
                 ),
@@ -120,7 +176,11 @@ def policy_controls(mode, cfg):
                        type="submit",
                        cls="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"),
                 action="/api/update-policy", 
-                method="post"
+                method="post",
+                hx_post="/api/update-policy",
+                hx_target="#main-content",
+                hx_swap="outerHTML",
+                hx_indicator="#loading-indicator"
             )
         ),
         cls="bg-gray-800 border-gray-700"
@@ -129,7 +189,7 @@ def policy_controls(mode, cfg):
 def _policy_impact_preview(cfg, mode):
     """Show expected system behavior based on current policy (like nutrition facts)."""
     # Calculate key metrics
-    total_reward_weight = cfg.quality_weight + cfg.diversity_weight + cfg.consistency_weight
+    total_reward_weight = cfg.quality_weight + cfg.diversity_weight + cfg.consistency_weight + cfg.volume_weight
     wellbeing_focus = cfg.burnout_penalty + cfg.sustainability_bonus + cfg.baseline_guarantee
     predictability = 1.0 if mode == "differential" else (0.5 if mode == "hybrid" else cfg.intermittent_probability)
     

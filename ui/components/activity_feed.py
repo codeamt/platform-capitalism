@@ -57,7 +57,8 @@ def activity_feed():
             P("Live feed of creator state transitions and behaviors", cls="text-sm text-gray-400 mb-4"),
             Div(
                 *[_activity_item(a) for a in activities],
-                cls="space-y-3"
+                cls="space-y-3 overflow-y-auto",
+                style="max-height: 600px;"
             )
         ),
         cls="bg-gray-800 border-gray-700"

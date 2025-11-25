@@ -8,12 +8,13 @@ from .reward_timeline import reward_timeline
 
 # Agent display
 from .agent_card import agent_card
+from .decision_tree import decision_tree
 
 # Activity feed
 from .activity_feed import activity_feed
 
 # Policy & transparency
-from .policy_controls import policy_controls, scenario_selector
+from .policy_controls import policy_controls, scenario_selector, preset_selector
 from .transparency_panel import transparency_panel
 
 
@@ -27,6 +28,7 @@ __all__ = [
     "agent_state_distribution",
     "reward_timeline",
     "agent_card",
+    "decision_tree",
     
     # Activity feed
     "activity_feed",
@@ -34,6 +36,7 @@ __all__ = [
     # Controls
     "policy_controls",
     "scenario_selector",
+    "preset_selector",
     "transparency_panel",
 
 ]

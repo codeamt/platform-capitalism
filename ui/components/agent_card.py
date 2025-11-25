@@ -1,5 +1,7 @@
-from fasthtml.common import Div, H2, H3, P, Span, Canvas, Script
+from fasthtml.common import Div, H2, H3, P, Span, Canvas, Script, Ul, Li, A
 from monsterui.all import Card, CardBody
+from ui.components.decision_tree import decision_tree
+from simulation.environment import GLOBAL_ENVIRONMENT
 import json
 
 def agent_card(agent):
@@ -33,34 +35,116 @@ def agent_card(agent):
             Div(
                 P(f"🎭 State: {p.current_state.name}", cls="font-medium text-gray-200"),
                 P(f"📋 Strategy: {p.strategy}", cls="text-sm text-gray-400"),
+                P(f"⏱️ Ticks Active: {len(agent.history)} | 📊 Total Posts: {sum(h.get('posts_generated', 0) for h in agent.history):.1f}", 
+                  cls="text-xs text-gray-400 mt-1"),
+                P(
+                    Span(f"💵 Earnings: ${sum(h.get('cpm_earnings', 0) for h in agent.history):.2f}", cls="text-green-400"),
+                    Span(" | ", cls="text-gray-600"),
+                    Span(f"👁️ Views: {sum(h.get('posts_generated', 0) for h in agent.history) * GLOBAL_ENVIRONMENT.policy_engine.config.avg_views_per_post:,.0f}", cls="text-blue-400"),
+                    cls="text-xs font-semibold mt-1"
+                ),
                 cls="mb-3 pb-3 border-b border-gray-700"
             ),
             
-            # Research Metrics (Key Outcomes)
-            H3("Creator Wellbeing", cls="text-sm font-semibold text-gray-300 mb-2"),
-            Div(
-                _metric_row("Burnout", p.burnout, "🔥", danger_threshold=0.7),
-                _metric_row("Addiction", p.addiction_drive, "🎰", danger_threshold=0.7),
-                _metric_row("Resilience", p.emotional_resilience, "💪", inverse=True),
-                _metric_row("Arousal/Anxiety", p.arousal_level, "⚡", danger_threshold=0.7),
-                cls="space-y-1 mb-3"
+            # Tab Navigation
+            Ul(
+                Li(
+                    A("📊 Metrics", 
+                      href="#metrics",
+                      data_tab="metrics",
+                      cls="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-blue-400 cursor-pointer transition-colors")
+                ),
+                Li(
+                    A("🧠 Decision Tree", 
+                      href="#decision",
+                      data_tab="decision",
+                      cls="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-blue-400 cursor-pointer transition-colors")
+                ),
+                role="tablist",
+                cls="flex border-b border-gray-700 mb-3 -mx-2 tab-container"
             ),
             
-            # Sparklines (if history available)
-            _agent_sparklines(agent) if len(agent.history) > 1 else None,
-            
-            # Content Traits
-            H3("Content Traits", cls="text-sm font-semibold text-gray-300 mb-2"),
+            # Tab 1: Metrics (visible by default)
             Div(
-                P(f"Quality: {p.quality:.2f} | Diversity: {p.diversity:.2f} | Consistency: {p.consistency:.2f}",
-                  cls="text-xs text-gray-400"),
-                cls="mb-2"
+                # Research Metrics (Key Outcomes)
+                H3("Creator Wellbeing", cls="text-sm font-semibold text-gray-300 mb-2"),
+                Div(
+                    _metric_row("Burnout", p.burnout, "🔥", danger_threshold=0.7),
+                    _metric_row("Addiction", p.addiction_drive, "🎰", danger_threshold=0.7),
+                    _metric_row("Resilience", p.emotional_resilience, "💪", inverse=True),
+                    _metric_row("Arousal/Anxiety", p.arousal_level, "⚡", danger_threshold=0.7),
+                    cls="space-y-1 mb-3"
+                ),
+                
+                # Sparklines (if history available)
+                _agent_sparklines(agent) if len(agent.history) > 1 else None,
+                
+                # Content Traits
+                H3("Content Traits", cls="text-sm font-semibold text-gray-300 mb-2 mt-3"),
+                Div(
+                    P(f"Quality: {p.quality:.2f} | Diversity: {p.diversity:.2f} | Consistency: {p.consistency:.2f}",
+                      cls="text-xs text-gray-400"),
+                    cls="mb-2"
+                ),
+                
+                id="metrics",
+                role="tabpanel",
+                cls="overflow-y-auto",
+                style="max-height: 400px;"
             ),
             
-            # Activity
-            P(f"⏱️ Ticks Active: {len(agent.history)}", cls="text-xs text-gray-400")
+            # Tab 2: Decision Tree (hidden by default)
+            Div(
+                decision_tree(agent),
+                id="decision",
+                role="tabpanel",
+                cls="overflow-y-auto",
+                style="max-height: 400px; display: none;"
+            ),
+            
+            # Tab switching script
+            Script("""
+                setTimeout(function() {
+                    document.querySelectorAll('[data-tab]').forEach(tab => {
+                        tab.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const tabName = tab.getAttribute('data-tab');
+                            const card = tab.closest('.bg-gray-800');
+                            
+                            // Hide all panels in this card
+                            card.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                                panel.style.display = 'none';
+                            });
+                            
+                            // Remove active class from all tabs in this card
+                            card.querySelectorAll('[data-tab]').forEach(t => {
+                                t.classList.remove('border-b-2', 'border-blue-500', 'text-blue-400');
+                                t.classList.add('text-gray-400');
+                            });
+                            
+                            // Show selected panel
+                            const panel = card.querySelector(`#${tabName}`);
+                            if (panel) panel.style.display = 'block';
+                            
+                            // Add active class to clicked tab
+                            tab.classList.add('border-b-2', 'border-blue-500', 'text-blue-400');
+                            tab.classList.remove('text-gray-400');
+                        });
+                    });
+                    
+                    // Set initial active tab for each card
+                    document.querySelectorAll('.tab-container').forEach(container => {
+                        const firstTab = container.querySelector('[data-tab]');
+                        if (firstTab) {
+                            firstTab.classList.add('border-b-2', 'border-blue-500', 'text-blue-400');
+                            firstTab.classList.remove('text-gray-400');
+                        }
+                    });
+                }, 100);
+            """)
         ),
-        cls="bg-gray-800 border-gray-700"
+        cls="bg-gray-800 border-gray-700",
+        style="height: auto; max-height: 600px; flex-shrink: 0;"
     )
 
 def _metric_row(label, value, emoji, danger_threshold=0.7, inverse=False):
@@ -114,14 +198,14 @@ def _agent_sparklines(agent):
             # Burnout sparkline
             Div(
                 P("🔥 Burnout", cls="text-xs text-gray-400 mb-1"),
-                Canvas(id=f"burnout-{agent_id}", style="height: 40px;"),
+                Canvas(id=f"burnout-{agent_id}", width="150", height="40", style="max-height: 40px; width: 100%;"),
                 cls="flex-1"
             ),
             
             # Reward sparkline
             Div(
                 P("🎯 Rewards", cls="text-xs text-gray-400 mb-1"),
-                Canvas(id=f"reward-{agent_id}", style="height: 40px;"),
+                Canvas(id=f"reward-{agent_id}", width="150", height="40", style="max-height: 40px; width: 100%;"),
                 cls="flex-1"
             ),
             
@@ -130,10 +214,16 @@ def _agent_sparklines(agent):
         
         # Chart.js scripts
         Script(f"""
-            (function() {{
+            setTimeout(function() {{
                 // Burnout sparkline
                 const burnoutCtx = document.getElementById('burnout-{agent_id}');
                 if (burnoutCtx && window.Chart) {{
+                    // Destroy existing chart if it exists
+                    const existingBurnoutChart = Chart.getChart('burnout-{agent_id}');
+                    if (existingBurnoutChart) {{
+                        existingBurnoutChart.destroy();
+                    }}
+                    
                     new Chart(burnoutCtx, {{
                         type: 'line',
                         data: {{
@@ -163,6 +253,12 @@ def _agent_sparklines(agent):
                 // Reward sparkline
                 const rewardCtx = document.getElementById('reward-{agent_id}');
                 if (rewardCtx && window.Chart) {{
+                    // Destroy existing chart if it exists
+                    const existingRewardChart = Chart.getChart('reward-{agent_id}');
+                    if (existingRewardChart) {{
+                        existingRewardChart.destroy();
+                    }}
+                    
                     new Chart(rewardCtx, {{
                         type: 'line',
                         data: {{
@@ -188,7 +284,7 @@ def _agent_sparklines(agent):
                         }}
                     }});
                 }}
-            }})();
+            }}, 100);
         """),
         
         cls="mt-2"

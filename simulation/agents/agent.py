@@ -1,4 +1,4 @@
-from simulation.agents.state_machine import CreatorStateMachine, StateContext
+from simulation.agents.state_machine import CreatorStateMachine, StateContext, CreatorState
 from simulation.agents.strategy_selector import StrategySelector
 
 class Agent:
@@ -27,14 +27,21 @@ class Agent:
         self._evolve_traits(next_state, rewards, policy_cfg)
         
         # Record history with trait snapshots for sparklines
-        self.history.append({
+        history_entry = {
             "tick": current_tick if current_tick is not None else len(self.history),
             "state": next_state.name,
             "burnout": self.profile.burnout,
             "addiction": self.profile.addiction_drive,
             "resilience": self.profile.emotional_resilience,
             **rewards
-        })
+        }
+        
+        # Include posts generated this tick (if content generation was called)
+        if hasattr(self, '_current_tick_posts'):
+            history_entry["posts_generated"] = self._current_tick_posts
+            # Keep _current_tick_posts for UI display (don't delete it)
+        
+        self.history.append(history_entry)
         return next_state
     
     def _evolve_traits(self, state, rewards, policy_cfg):
@@ -43,8 +50,6 @@ class Agent:
         Key research insight: Intermittent reinforcement drives addiction and burnout,
         while differential reinforcement promotes sustainable, healthy patterns.
         """
-        from simulation.agents.state_machine import CreatorState
-        
         reward_magnitude = rewards.get("final_reward", 0)
         predictability = rewards.get("predictability", 0.5)
         
@@ -151,4 +156,167 @@ class Agent:
             "resilience": round(self.profile.emotional_resilience, 3),
             "strategy": self.profile.strategy,
             "ticks_alive": len(self.history)
+        }
+    
+    def _parse_frequency_from_strategy(self, strategy_description: str) -> float:
+        """Infers a baseline content generation multiplier from the strategy description.
+        
+        This replaces a need for complex strategy parsing with simple keyword checks.
+        
+        Args:
+            strategy_description: Human-readable strategy description string
+            
+        Returns:
+            float: Content output multiplier (0.5 = low, 1.0 = normal, 1.5 = high)
+        """
+        description = strategy_description.lower()
+        
+        # High frequency strategies
+        if "aggressive" in description or "high frequency" in description or "rapid" in description:
+            return 1.5
+        
+        # Low frequency strategies
+        elif "low-risk" in description or "conservative" in description or "withdrawal" in description:
+            return 0.5
+        
+        # Moderate/balanced strategies
+        elif "steady" in description or "balanced" in description or "consistent" in description:
+            return 1.0
+        
+        # Default to normal output
+        return 1.0
+    
+    def simulate_content_generation(self) -> float:
+        """Simulates content output for the current tick.
+        
+        Adjusts output based on:
+        1. The agent's long-term strategy (inferred frequency)
+        2. The reward received in the previous tick (agency/feedback loop)
+        
+        This implements agency: agents learn from rewards and adjust behavior.
+        Positive rewards encourage more output, negative rewards cause hesitation.
+        
+        Returns:
+            float: Number of posts generated this tick
+        """
+        # Get strategy-based frequency multiplier
+        strategy_desc = self._get_strategy_description(self.profile.strategy)
+        base_frequency_multiplier = self._parse_frequency_from_strategy(strategy_desc)
+        
+        # --- Implementing Agency: Feedback from Previous Tick ---
+        feedback_modifier = 0.0
+        if self.history:
+            # Check the 'reward' logged in the *last* completed tick
+            previous_reward = self.history[-1].get('final_reward', 0.0)
+            
+            # Positive Reinforcement: If rewarded, slightly exceed the planned frequency
+            if previous_reward > 0.1:
+                # Add up to +0.2 to the multiplier, scaled by reward magnitude
+                feedback_modifier = min(0.2, previous_reward * 0.5)
+            
+            # Negative Reinforcement: If penalized, reduce output or stick rigidly to plan
+            elif previous_reward < -0.1:
+                # Subtract up to -0.1 from the multiplier
+                feedback_modifier = max(-0.1, previous_reward * 0.2)
+        
+        # --- Calculate Final Content Output ---
+        # Use quality as a proxy for base productivity (agents with higher quality tend to be more productive)
+        base_output = self.profile.quality
+        
+        # Combine strategy, feedback, and ensure output is not negative
+        effective_frequency = max(0.0, base_frequency_multiplier + feedback_modifier)
+        
+        # Final posts generated (scale by max potential of 10.0 posts per tick/day)
+        # This produces realistic ranges: 3-10 posts/day for active creators
+        posts_generated = round(base_output * effective_frequency * 10.0, 1)
+        
+        # Store the result temporarily to be consumed by the Environment's history logging
+        self._current_tick_posts = posts_generated
+        
+        return posts_generated
+    
+    # =========================================================================
+    # FUTURE-PROOFING: Hugging Face / LLM Integration Stubs
+    # =========================================================================
+    # These methods are placeholders for future content generation features.
+    # See FEEDBACK.md lines 359-458 for full implementation details.
+    
+    def _build_markov_corpus(self):
+        """Build a Markov chain corpus from agent's historical content.
+        
+        Future Implementation:
+        - Analyze agent's content history to build a statistical model
+        - Use agent's quality, diversity, and consistency traits to shape corpus
+        - Generate realistic text patterns based on agent's "voice"
+        
+        Returns:
+            dict: Markov chain transition probabilities (stub returns empty dict)
+        
+        Example:
+            {
+                "the": {"quick": 0.3, "lazy": 0.2, "brown": 0.5},
+                "quick": {"brown": 0.8, "fox": 0.2}
+            }
+        """
+        # STUB: Return empty corpus
+        # TODO: Implement Markov chain builder when content history is available
+        return {}
+    
+    def generate_content_prompt_hf(self, temperature=0.7, max_tokens=100):
+        """Generate a content prompt for Hugging Face text generation.
+        
+        Future Implementation:
+        - Use agent traits (quality, diversity, strategy) to craft prompts
+        - Integrate with HF Inference API or local models
+        - Generate realistic social media posts based on agent persona
+        - Apply content moderation and safety filters
+        
+        Args:
+            temperature (float): Sampling temperature for generation (0.0-1.0)
+                - Low (0.1-0.3): Conservative, predictable content
+                - Medium (0.5-0.7): Balanced creativity
+                - High (0.8-1.0): Creative, diverse content
+            max_tokens (int): Maximum length of generated content
+        
+        Returns:
+            dict: Prompt configuration for HF API (stub returns placeholder)
+        
+        Example:
+            {
+                "model": "gpt2",
+                "prompt": "As a content creator focused on...",
+                "temperature": 0.7,
+                "max_tokens": 100,
+                "top_p": 0.9
+            }
+        """
+        # STUB: Return placeholder prompt configuration
+        # TODO: Integrate with Hugging Face Inference API
+        
+        # Map agent strategy to content style
+        strategy_prompts = {
+            "rapid_posting": "Create a quick, engaging social media post about trending topics.",
+            "strategic_pause": "Write a thoughtful, well-researched post with depth.",
+            "consistent_quality": "Generate a balanced post that maintains quality standards.",
+            "quality_focus": "Craft a high-quality, polished post with strong narrative.",
+            "volume_focus": "Create a short, punchy post optimized for engagement."
+        }
+        
+        base_prompt = strategy_prompts.get(
+            self.profile.strategy,
+            "Create a social media post."
+        )
+        
+        # Adjust temperature based on diversity trait
+        adjusted_temp = temperature * (0.5 + self.profile.diversity * 0.5)
+        
+        return {
+            "model": "gpt2",  # Placeholder model
+            "prompt": base_prompt,
+            "temperature": adjusted_temp,
+            "max_tokens": max_tokens,
+            "top_p": 0.9,
+            "agent_id": self.profile.id,
+            "quality_target": self.profile.quality,
+            "diversity_target": self.profile.diversity
         }

@@ -1,5 +1,6 @@
 import random
 from simulation.policy_engine import PolicyEngine, PolicyConfig
+from simulation.policy_engine.config import OPTIMAL_POLICY_CONFIG
 from simulation.agents.agent import Agent
 
 # Utility: compute platform volatility
@@ -22,10 +23,24 @@ def update_state_history(agent):
 
 # Main Environment Class
 class Environment:
-    def __init__(self, agents=None):
+    """Simulation environment managing agents and policy enforcement.
+    
+    The Environment orchestrates the simulation loop, applying policy rules
+    and tracking aggregate metrics over time.
+    
+    Time Scale:
+        1 tick = 1 day of simulated time
+        This allows modeling daily content creation patterns, burnout accumulation,
+        and state transitions that match real creator behavior timelines.
+    """
+    
+    TICK_DURATION_DAYS = 1  # Each tick represents 1 day
+
+    def __init__(self, agents=None, policy_config=None):
         self.agents = agents or []
-        self.policy_engine = PolicyEngine(PolicyConfig())
+        self.policy_engine = PolicyEngine(policy_config or OPTIMAL_POLICY_CONFIG)
         self.last_tick_explanations = []
+        self.current_scenario = None  # Track which scenario is loaded
         self.tick_count = 0
         
         # History tracking for charts (last 20 ticks)
@@ -35,6 +50,7 @@ class Environment:
             "avg_burnout": [],
             "avg_addiction": [],
             "avg_resilience": [],
+            "avg_arousal": [],  # Track arousal over time
             "state_distribution": [],  # List of dicts
             "avg_reward": [],
         }
@@ -44,19 +60,57 @@ class Environment:
         return compute_volatility()
 
     def tick(self):
-        """Run a single simulation tick: apply rewards, update state, record telemetry."""
+        """Run a single simulation tick: generate content, apply rewards, update state, record telemetry."""
         self.last_tick_explanations = []
         self.tick_count += 1
         
+        # Step 1: Agent Action - Content Generation (NEW)
+        # Agents decide how much content to post based on strategy and previous rewards
+        for agent in self.agents:
+            agent.simulate_content_generation()
+        
+        # Step 2: Policy Application & Reward Calculation
         for agent in self.agents:
             self.policy_engine.apply(agent, self)  # Updates agent state and logs telemetry
             update_state_history(agent)
         
-        # Record history for charts
+        # Step 3: Record history for charts
         self._record_history()
 
     def add_agent(self, agent: Agent):
         self.agents.append(agent)
+    
+    def reset_full_state(self):
+        """Reset the entire simulation state to initial conditions.
+        
+        This encapsulates all reset logic, preventing external code from
+        needing knowledge of agent and environment internals.
+        """
+        # Reset all agents to initial state
+        for agent in self.agents:
+            agent.history = []
+            agent.decision_trace = []
+            
+            # Reset traits to initial values (keeping personality traits)
+            agent.profile.burnout = 0.2  # Fresh start
+            agent.profile.arousal_level = 0.5  # Moderate baseline
+            # Keep addiction_drive, emotional_resilience as personality traits
+        
+        # Reset environment state
+        self.tick_count = 0
+        self.last_tick_explanations = []
+        
+        # Clear history tracking
+        self.history = {
+            "ticks": [],
+            "health_score": [],
+            "avg_burnout": [],
+            "avg_addiction": [],
+            "avg_resilience": [],
+            "avg_arousal": [],  # Track arousal over time
+            "state_distribution": [],
+            "avg_reward": [],
+        }
     
     def _record_history(self):
         """Record current state to history for time-series charts."""
@@ -71,6 +125,7 @@ class Environment:
         self.history["avg_burnout"].append(summary["avg_burnout"])
         self.history["avg_addiction"].append(summary["avg_addiction"])
         self.history["avg_resilience"].append(summary["avg_resilience"])
+        self.history["avg_arousal"].append(summary["avg_arousal"])  # Track arousal
         self.history["state_distribution"].append(summary["state_distribution"])
         
         # Calculate average reward from last tick
@@ -85,6 +140,26 @@ class Environment:
             if len(self.history[key]) > self.max_history_length:
                 self.history[key] = self.history[key][-self.max_history_length:]
 
+    def get_simulated_time(self):
+        """Convert current tick count to human-readable time.
+        
+        Returns:
+            str: Human-readable time (e.g., "5 days", "2 weeks", "3 months")
+        """
+        days = self.tick_count * self.TICK_DURATION_DAYS
+        
+        if days < 7:
+            return f"{days} day{'s' if days != 1 else ''}"
+        elif days < 30:
+            weeks = days // 7
+            return f"{weeks} week{'s' if weeks != 1 else ''}"
+        elif days < 365:
+            months = days // 30
+            return f"{months} month{'s' if months != 1 else ''}"
+        else:
+            years = days // 365
+            return f"{years} year{'s' if years != 1 else ''}"
+    
     def summary(self):
         """Get comprehensive summary of simulation state.
         

@@ -1,16 +1,18 @@
 version: 1
-serviceName: platform-simulation
-region: us-east-1  # change as needed (e.g., us-west-2)
+serviceName: platform-capitalism
+region: us-east-1  # change as needed (e.g., us-west-2, eu-west-1)
 
 containers:
   app:
-    image: ghcr.io/codeamt/platform-simulation:latest  # or local image reference
-    command: ["python", "main.py"]
+    image: ghcr.io/YOUR_USERNAME/platform-capitalism:latest  # Update with your GitHub username
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
     ports:
       - 8080
     environment:
       ENVIRONMENT: production
       LOG_LEVEL: info
-      AWS_DEFAULT_REGION: us-east-1
-      DB_URL: ${DB_URL}
-      SECRET_KEY: ${SECRET_KEY}
+      PORT: "8080"
+      # For research deployments with data collection:
+      # ENABLE_DATA_EXPORT: "true"
+      # S3_BUCKET: "platform-capitalism-research-data"
+      # AWS_DEFAULT_REGION: us-east-1

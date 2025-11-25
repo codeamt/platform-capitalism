@@ -11,6 +11,9 @@ class Scenario:
     def apply(self, env):
         # Apply policy config
         env.policy_engine.config = self.policy
+        
+        # Track which scenario is loaded
+        env.current_scenario = self.name
 
         # Optionally modify agent traits
         if self.agent_overrides:
