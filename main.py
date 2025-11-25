@@ -37,12 +37,20 @@ def bootstrap_simulation(env, num_agents=5, default_scenario="Creator-First Plat
         load_scenario(env, default_scenario)
 
 
-# Bootstrap simulation on startup (only if no agents present)
-bootstrap_simulation(GLOBAL_ENVIRONMENT)
+# Create FastHTML app (don't bootstrap yet for Vercel)
+# Use a fixed secret key for Vercel (read-only filesystem)
+# In production, set SECRET_KEY environment variable in Vercel dashboard
+secret = os.getenv("SECRET_KEY", "vercel-demo-key-change-in-production-settings")
+app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=secret, key_fname=None)
 
-# Create FastHTML app
-# Secret key from environment variable for security (None is acceptable for dev)
-app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=os.getenv("SECRET_KEY"))
+# Lazy bootstrap on first request (BEFORE route registration)
+@app.middleware("http")
+async def bootstrap_middleware(request, call_next):
+    """Bootstrap simulation on first request"""
+    if len(GLOBAL_ENVIRONMENT.agents) == 0:
+        bootstrap_simulation(GLOBAL_ENVIRONMENT)
+    response = await call_next(request)
+    return response
 
 # Register all APIRouters with the app using FastHTML's .to_app() method
 for router in [
@@ -65,7 +73,7 @@ def health():
 # Dev root fallback
 @rt("/dev", methods=["GET"])
 def dev_root():
-    return Div("App is running — check the dashboard at /.")
+    return Div("App is running — check the dashboard at /.") 
 
 # Note: /api/tick and /api/reset are now in api_update_policy.py
 
