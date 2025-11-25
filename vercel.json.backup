@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "name": "platform-capitalism-demo",
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ],
+  "env": {
+    "ENVIRONMENT": "demo",
+    "LOG_LEVEL": "info"
+  },
+  "regions": ["iad1"]
+}
