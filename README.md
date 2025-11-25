@@ -2,7 +2,7 @@
 
 <!-- Update YOUR_USERNAME with your GitHub username after first push -->
 [![CI](https://github.com/codeamt/platform-capitalism/actions/workflows/ci.yml/badge.svg)](https://github.com/codeamt/platform-capitalism/actions/workflows/ci.yml)
-[![Docs](https://github.com/codeamt/platform-capitalism/actions/workflows/docs.yml/badge.svg)](https://codeamt.github.io/platform-capitalism)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://codeamt.github.io/platform-capitalism)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
