@@ -48,10 +48,14 @@ graph TD
     D --> H[Reward Calculation]
     H --> E
     
-    style A fill:#61DAFB
-    style C fill:#90EE90
-    style D fill:#FFB6C1
-    style E fill:#DDA0DD
+    style A fill:#61DAFB,stroke:#333,stroke-width:2px,color:#000
+    style B fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
+    style C fill:#90EE90,stroke:#333,stroke-width:2px,color:#000
+    style D fill:#FFB6C1,stroke:#333,stroke-width:2px,color:#000
+    style E fill:#DDA0DD,stroke:#333,stroke-width:2px,color:#000
+    style F fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
+    style G fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
+    style H fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
 ```
 
 ## Research Foundation
