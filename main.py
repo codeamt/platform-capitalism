@@ -80,13 +80,3 @@ def dev_root():
 # Entry for launching
 if __name__ == "__main__":
     serve()
-    
-    ''' Or in production 
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8080,
-        reload=True
-    )
-    '''
