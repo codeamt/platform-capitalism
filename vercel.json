@@ -1,17 +1,1 @@
-{
-  "functions": {
-    "api/**/*.py": {
-      "runtime": "@vercel/python@4.3.0"
-    }
-  },
-  "env": {
-    "ENVIRONMENT": "production",
-    "LOG_LEVEL": "info"
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index"
-    }
-  ]
-}
+{}

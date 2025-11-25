@@ -1,3 +1,7 @@
+"""
+Vercel-optimized version of main.py
+Delays bootstrap until first request to avoid cold start timeout
+"""
 import os
 from fasthtml.common import fast_app, serve, Div
 from monsterui.all import *
@@ -12,7 +16,6 @@ from routes.dashboard import rt as dashboard_rt
 from routes.governance_lab import rt as governance_lab_rt
 from simulation import *
 from ui import *
-
 
 # Simulation environment & agent bootstrapping
 from simulation.environment import GLOBAL_ENVIRONMENT
@@ -29,20 +32,19 @@ def bootstrap_simulation(env, num_agents=5, default_scenario="Creator-First Plat
         num_agents: Number of demo agents to create
         default_scenario: Name of scenario to load initially
     """
-    if not env.agents:
-        env.agents.extend(
-            [Agent(AgentProfile(id=i)) for i in range(num_agents)]
-        )
-        # Load default scenario to apply initial agent traits
-        load_scenario(env, default_scenario)
+    if len(env.agents) > 0:
+        return  # Already bootstrapped
+    
+    agents = [Agent(AgentProfile(id=i)) for i in range(num_agents)]
+    env.agents = agents
+    load_scenario(env, default_scenario)
 
 
-# Bootstrap simulation on startup (only if no agents present)
-bootstrap_simulation(GLOBAL_ENVIRONMENT)
-
-# Create FastHTML app
-# Secret key from environment variable for security (None is acceptable for dev)
-app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=os.getenv("SECRET_KEY"))
+# Create FastHTML app (don't bootstrap yet for Vercel)
+# Use a fixed secret key for Vercel (read-only filesystem)
+# In production, set SECRET_KEY environment variable in Vercel dashboard
+secret = os.getenv("SECRET_KEY", "vercel-demo-key-change-in-production-settings")
+app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=secret, key_fname=None)
 
 # Register all APIRouters with the app using FastHTML's .to_app() method
 for router in [
@@ -62,23 +64,26 @@ for router in [
 def health():
     return {"status": "ok"}
 
+
+# Lazy bootstrap on first request
+@app.middleware("http")
+async def bootstrap_middleware(request, call_next):
+    """Bootstrap simulation on first request"""
+    if len(GLOBAL_ENVIRONMENT.agents) == 0:
+        bootstrap_simulation(GLOBAL_ENVIRONMENT)
+    response = await call_next(request)
+    return response
+
+
 # Dev root fallback
 @rt("/dev", methods=["GET"])
 def dev_root():
     return Div("App is running — check the dashboard at /.")
 
-# Note: /api/tick and /api/reset are now in api_update_policy.py
 
-# Entry for launching
+# Entry for launching (local dev and Vercel)
 if __name__ == "__main__":
     serve()
-    
-    ''' Or in production 
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8080,
-        reload=True
-    )
-    '''
+
+# For Vercel's zero-config deployment
+# Vercel will auto-detect and run this file
