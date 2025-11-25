@@ -1,6 +1,18 @@
 # Vercel Debugging Guide
 
-## Current Error: 500 INTERNAL_SERVER_ERROR - FUNCTION_INVOCATION_FAILED
+## ✅ SOLVED: ModuleNotFoundError: No module named 'mangum'
+
+**Root Cause:** Vercel wasn't installing dependencies because `requirements.txt` needs to be in the `api/` directory for serverless functions.
+
+**Solution:** Copy `requirements.txt` to `api/requirements.txt`
+
+```bash
+cp requirements.txt api/requirements.txt
+```
+
+---
+
+## Previous Error: 500 INTERNAL_SERVER_ERROR - FUNCTION_INVOCATION_FAILED
 
 ### Changes Made to Fix:
 
