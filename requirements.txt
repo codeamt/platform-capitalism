@@ -1,0 +1,3 @@
+# Core dependencies for Vercel deployment
+python-fasthtml>=0.12.0
+monsterui>=1.0.32

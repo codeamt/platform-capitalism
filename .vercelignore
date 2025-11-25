@@ -1,0 +1,47 @@
+# Vercel ignore - exclude from deployment
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Development
+.env
+.env.local
+.venv/
+venv/
+*.log
+
+# Documentation
+docs/
+site/
+*.md
+!README.md
+
+# Deployment configs for other platforms
+deploy/
+Dockerfile
+docker-compose.yml
+
+# Tests
+tests/
+*.pdf
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# MkDocs
+mkdocs.yml
