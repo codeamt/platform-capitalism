@@ -41,7 +41,10 @@ def bootstrap_simulation(env, num_agents=5, default_scenario="Creator-First Plat
 
 
 # Create FastHTML app (don't bootstrap yet for Vercel)
-app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=os.getenv("SECRET_KEY"))
+# Use a fixed secret key for Vercel (read-only filesystem)
+# In production, set SECRET_KEY environment variable in Vercel dashboard
+secret = os.getenv("SECRET_KEY", "vercel-demo-key-change-in-production-settings")
+app, rt = fast_app(hdrs=Theme.slate.headers(), secret_key=secret, key_fname=None)
 
 # Register all APIRouters with the app using FastHTML's .to_app() method
 for router in [
