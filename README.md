@@ -146,61 +146,55 @@ Where:
 **State Machine**
 
 Agents transition between states based on burnout and rewards:
-- OPTIMIZER: Balanced, sustainable
-- HUSTLER: High output, rising burnout
-- TRUE_BELIEVER: Intrinsically motivated
-- BURNED_OUT: Exhausted, low output
+
+| State | Description |
+|-------|-------------|
+| **OPTIMIZER** | Balanced, sustainable |
+| **HUSTLER** | High output, rising burnout |
+| **TRUE_BELIEVER** | Intrinsically motivated |
+| **BURNED_OUT** | Exhausted, low output |
 
 **Psychological Metrics**
 
-- Burnout: Accumulates with high output, decreases with rest
-- Addiction: Driven by intermittent reinforcement
-- Resilience: Ability to recover from negative rewards
-- Arousal/Anxiety: Engagement with platform
+| Metric | Description |
+|--------|-------------|
+| **Burnout** | Accumulates with high output, decreases with rest |
+| **Addiction** | Driven by intermittent reinforcement |
+| **Resilience** | Ability to recover from negative rewards |
+| **Arousal/Anxiety** | Engagement with platform |
 
 ### Platform Governance Models
 
-**1. Exploitative Platform**
-- CPM: $5 (low)
-- Reinforcement: Intermittent (unpredictable)
-- Views: 3,000/post (harder to grow)
-- Result: High burnout, low earnings, addiction
-
-**2. Optimal Platform**
-- CPM: $10 (fair)
-- Reinforcement: Differential (predictable)
-- Views: 5,000/post (moderate growth)
-- Result: Sustainable, balanced earnings
-
-**3. Balanced Platform**
-- CPM: $15 (good)
-- Reinforcement: Hybrid (50/50 mix)
-- Views: 7,000/post (growing audience)
-- Result: Moderate burnout, good earnings
-
-**4. Cooperative Platform**
-- CPM: $20 (premium)
-- Reinforcement: Differential + UBI
-- Views: 10,000/post (large audience)
-- Result: Low burnout, high earnings, sustainable
+| Model | CPM | Reinforcement | Views/Post | Result |
+|-------|-----|---------------|------------|--------|
+| **Exploitative** | $5 (low) | Intermittent (unpredictable) | 3,000 (harder to grow) | High burnout, low earnings, addiction |
+| **Optimal** | $10 (fair) | Differential (predictable) | 5,000 (moderate growth) | Sustainable, balanced earnings |
+| **Balanced** | $15 (good) | Hybrid (50/50 mix) | 7,000 (growing audience) | Moderate burnout, good earnings |
+| **Cooperative** | $20 (premium) | Differential + UBI | 10,000 (large audience) | Low burnout, high earnings, sustainable |
 
 ### Metrics & Analytics
 
 **Agent-Level Metrics**
-- Earnings: Total CPM-based revenue
-- Views: Total content views
-- Posts: Total content generated
-- Burnout: Exhaustion level (0-1)
-- Addiction: Compulsive behavior (0-1)
-- Resilience: Recovery ability (0-1)
-- Quality/Diversity/Consistency: Content traits (0-1)
+
+| Metric | Description |
+|--------|-------------|
+| **Earnings** | Total CPM-based revenue |
+| **Views** | Total content views |
+| **Posts** | Total content generated |
+| **Burnout** | Exhaustion level (0-1) |
+| **Addiction** | Compulsive behavior (0-1) |
+| **Resilience** | Recovery ability (0-1) |
+| **Quality/Diversity/Consistency** | Content traits (0-1) |
 
 **Platform-Level Metrics**
-- Total Earnings: Aggregate creator revenue
-- Average Burnout: Platform health indicator
-- Burnout Rate: % of creators in BURNED_OUT state
-- Addiction Rate: % of creators with high addiction
-- Mode: Reinforcement strategy (differential/intermittent/hybrid)
+
+| Metric | Description |
+|--------|-------------|
+| **Total Earnings** | Aggregate creator revenue |
+| **Average Burnout** | Platform health indicator |
+| **Burnout Rate** | % of creators in BURNED_OUT state |
+| **Addiction Rate** | % of creators with high addiction |
+| **Mode** | Reinforcement strategy (differential/intermittent/hybrid) |
 
 ---
 
@@ -346,7 +340,6 @@ make lint               # Lint code
 make clean              # Clean temporary files
 ```
 
----
 
 ## 🧪 Testing
 
@@ -382,8 +375,6 @@ platform-capitalism/
 ├── routes/               # API endpoints (tick, reset, policy updates)
 └── tests/               # Validation tests
 ```
-
----
 
 ### 🔬 Key Features
 
@@ -506,12 +497,11 @@ graph LR
 
 See `LICENSE` file for details.
 
----
 
 ## 🙏 Acknowledgments
 
 - Ashley Mears for foundational research on platform labor and creator economies
-- Claude Sonnet 3.5 for development assistance
+- Claude Sonnet 3.5 and Gemini 3 for development assistance
 - FastHTML framework
 - MonsterUI component library
 - Hugging Face community
