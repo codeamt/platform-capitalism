@@ -79,7 +79,11 @@ def page_layout(content, current_path="/"):
     return Div(
         nav_bar(current_path),
         content,
-        # Chart.js for future visualizations (time-series, comparisons, etc.)
+        # Chart.js for visualizations
         Script(src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"),
+        # Custom chart utilities
+        Script(src="/static/js/charts.js"),
+        Script(src="/static/js/agent-sparklines.js"),
+        Script(src="/static/js/tabs.js"),
         cls="min-h-screen bg-gray-950"
     )

@@ -186,43 +186,7 @@ def _health_trend_only(history):
                 H2("🎯 Agent Distribution", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
                 Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    setTimeout(function() {{
-                        const ctx = document.getElementById('agentDistributionPie');
-                        if (!ctx) return;
-                        
-                        // Destroy existing chart if it exists
-                        const existingChart = Chart.getChart('agentDistributionPie');
-                        if (existingChart) {{
-                            existingChart.destroy();
-                        }}
-                        
-                        new Chart(ctx, {{
-                            type: 'pie',
-                            data: {{
-                                labels: {state_labels},
-                                datasets: [{{
-                                    data: {state_values},
-                                    backgroundColor: {colors},
-                                    borderColor: 'rgb(31, 41, 55)',
-                                    borderWidth: 2
-                                }}]
-                            }},
-                            options: {{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {{
-                                    legend: {{
-                                        display: true,
-                                        position: 'right',
-                                        labels: {{
-                                            color: 'rgb(209, 213, 219)',
-                                            font: {{ size: 12 }}
-                                        }}
-                                    }}
-                                }}
-                            }}
-                        }});
-                    }}, 100);
+                    initAgentDistributionPie('agentDistributionPie', {state_labels}, {state_values}, {colors});
                 """)
             ),
             cls="bg-gray-800 border-gray-700"
@@ -238,43 +202,7 @@ def _health_trend_only(history):
                 H2("🎯 Agent Distribution", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
                 Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    setTimeout(function() {{
-                        const ctx = document.getElementById('agentDistributionPie');
-                        if (!ctx) return;
-                        
-                        // Destroy existing chart if it exists
-                        const existingChart = Chart.getChart('agentDistributionPie');
-                        if (existingChart) {{
-                            existingChart.destroy();
-                        }}
-                        
-                        new Chart(ctx, {{
-                            type: 'pie',
-                            data: {{
-                                labels: {state_labels},
-                                datasets: [{{
-                                    data: {state_values},
-                                    backgroundColor: {colors},
-                                    borderColor: 'rgb(31, 41, 55)',
-                                    borderWidth: 2
-                                }}]
-                            }},
-                            options: {{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {{
-                                    legend: {{
-                                        display: true,
-                                        position: 'right',
-                                        labels: {{
-                                            color: 'rgb(209, 213, 219)',
-                                            font: {{ size: 12 }}
-                                        }}
-                                    }}
-                                }}
-                            }}
-                        }});
-                    }}, 100);
+                    initAgentDistributionPie('agentDistributionPie', {state_labels}, {state_values}, {colors});
                 """)
             ),
             cls="bg-gray-800 border-gray-700 mb-6"
@@ -287,71 +215,7 @@ def _health_trend_only(history):
                 P("Track creator arousal/engagement over time", cls="text-xs sm:text-sm text-gray-400 mb-4"),
                 Canvas(id="arousalTrendChart", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    setTimeout(function() {{
-                        const ctx = document.getElementById('arousalTrendChart');
-                        if (!ctx) return;
-                        
-                        // Destroy existing chart if it exists
-                        const existingChart = Chart.getChart('arousalTrendChart');
-                        if (existingChart) {{
-                            existingChart.destroy();
-                        }}
-                        
-                        new Chart(ctx, {{
-                            type: 'line',
-                            data: {{
-                                labels: {ticks},
-                                datasets: [
-                                    {{
-                                        label: 'Arousal',
-                                        data: {arousal},
-                                        borderColor: 'rgb(59, 130, 246)',
-                                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                        tension: 0.3,
-                                        fill: true
-                                    }}
-                                ]
-                            }},
-                            options: {{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {{
-                                    legend: {{
-                                        display: true,
-                                        position: 'top',
-                                        labels: {{
-                                            color: 'rgb(209, 213, 219)',
-                                            font: {{ size: 12 }}
-                                        }}
-                                    }},
-                                    tooltip: {{
-                                        mode: 'index',
-                                        intersect: false
-                                    }}
-                                }},
-                                scales: {{
-                                    y: {{
-                                        beginAtZero: true,
-                                        max: 1,
-                                        grid: {{
-                                            color: 'rgba(75, 85, 99, 0.3)'
-                                        }},
-                                        ticks: {{
-                                            color: 'rgb(156, 163, 175)'
-                                        }}
-                                    }},
-                                    x: {{
-                                        grid: {{
-                                            color: 'rgba(75, 85, 99, 0.3)'
-                                        }},
-                                        ticks: {{
-                                            color: 'rgb(156, 163, 175)'
-                                        }}
-                                    }}
-                                }}
-                            }}
-                        }});
-                    }}, 100);
+                    initArousalTrendChart('arousalTrendChart', {ticks}, {arousal});
                 """)
             ),
             cls="bg-gray-800 border-gray-700"

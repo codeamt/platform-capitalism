@@ -102,74 +102,7 @@ def _reward_chart(ticks, rewards, mean_reward, regime):
         H3("Reward Distribution Over Time", cls="text-sm font-semibold text-gray-300 mb-2"),
         Canvas(id="rewardTimelineChart", style="height: 250px;"),
         Script(f"""
-            setTimeout(function() {{
-                const ctx = document.getElementById('rewardTimelineChart');
-                if (!ctx || !window.Chart) return;
-                
-                // Destroy existing chart if it exists
-                const existingChart = Chart.getChart('rewardTimelineChart');
-                if (existingChart) {{
-                    existingChart.destroy();
-                }}
-                
-                new Chart(ctx, {{
-                    type: 'line',
-                    data: {{
-                        labels: {json.dumps(ticks)},
-                        datasets: [
-                            {{
-                                label: 'Actual Rewards',
-                                data: {json.dumps(rewards)},
-                                borderColor: '{line_color}',
-                                backgroundColor: '{line_color.replace('rgb', 'rgba').replace(')', ', 0.1)')}',
-                                borderWidth: 2,
-                                tension: 0.3,
-                                fill: true,
-                                pointRadius: 3,
-                                pointHoverRadius: 5
-                            }},
-                            {{
-                                label: 'Mean Reward',
-                                data: {json.dumps(mean_line)},
-                                borderColor: 'rgb(156, 163, 175)',
-                                borderWidth: 2,
-                                borderDash: [5, 5],
-                                fill: false,
-                                pointRadius: 0
-                            }}
-                        ]
-                    }},
-                    options: {{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {{
-                            legend: {{
-                                display: true,
-                                position: 'bottom'
-                            }},
-                            tooltip: {{
-                                mode: 'index',
-                                intersect: false
-                            }}
-                        }},
-                        scales: {{
-                            y: {{
-                                beginAtZero: true,
-                                title: {{
-                                    display: true,
-                                    text: 'Average Reward'
-                                }}
-                            }},
-                            x: {{
-                                title: {{
-                                    display: true,
-                                    text: 'Tick'
-                                }}
-                            }}
-                        }}
-                    }}
-                }});
-            }}, 100);
+            initRewardTimelineChart('rewardTimelineChart', {json.dumps(ticks)}, {json.dumps(rewards)}, {json.dumps(mean_line)}, '{line_color}');
         """),
         cls="mb-4"
     )

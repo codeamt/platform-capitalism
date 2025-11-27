@@ -102,46 +102,7 @@ def agent_card(agent):
                 style="max-height: 400px; display: none;"
             ),
             
-            # Tab switching script
-            Script("""
-                setTimeout(function() {
-                    document.querySelectorAll('[data-tab]').forEach(tab => {
-                        tab.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            const tabName = tab.getAttribute('data-tab');
-                            const card = tab.closest('.bg-gray-800');
-                            
-                            // Hide all panels in this card
-                            card.querySelectorAll('[role="tabpanel"]').forEach(panel => {
-                                panel.style.display = 'none';
-                            });
-                            
-                            // Remove active class from all tabs in this card
-                            card.querySelectorAll('[data-tab]').forEach(t => {
-                                t.classList.remove('border-b-2', 'border-blue-500', 'text-blue-400');
-                                t.classList.add('text-gray-400');
-                            });
-                            
-                            // Show selected panel
-                            const panel = card.querySelector(`#${tabName}`);
-                            if (panel) panel.style.display = 'block';
-                            
-                            // Add active class to clicked tab
-                            tab.classList.add('border-b-2', 'border-blue-500', 'text-blue-400');
-                            tab.classList.remove('text-gray-400');
-                        });
-                    });
-                    
-                    // Set initial active tab for each card
-                    document.querySelectorAll('.tab-container').forEach(container => {
-                        const firstTab = container.querySelector('[data-tab]');
-                        if (firstTab) {
-                            firstTab.classList.add('border-b-2', 'border-blue-500', 'text-blue-400');
-                            firstTab.classList.remove('text-gray-400');
-                        }
-                    });
-                }, 100);
-            """)
+            # Tab switching handled by external JS (tabs.js)
         ),
         cls="bg-gray-800 border-gray-700",
         style="height: auto; max-height: 600px; flex-shrink: 0;"
@@ -212,79 +173,10 @@ def _agent_sparklines(agent):
             cls="grid grid-cols-2 gap-2"
         ),
         
-        # Chart.js scripts
+        # Initialize sparkline charts using external JS
         Script(f"""
-            setTimeout(function() {{
-                // Burnout sparkline
-                const burnoutCtx = document.getElementById('burnout-{agent_id}');
-                if (burnoutCtx && window.Chart) {{
-                    // Destroy existing chart if it exists
-                    const existingBurnoutChart = Chart.getChart('burnout-{agent_id}');
-                    if (existingBurnoutChart) {{
-                        existingBurnoutChart.destroy();
-                    }}
-                    
-                    new Chart(burnoutCtx, {{
-                        type: 'line',
-                        data: {{
-                            labels: {json.dumps(ticks)},
-                            datasets: [{{
-                                data: {json.dumps(burnout_history)},
-                                borderColor: 'rgb(239, 68, 68)',
-                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                borderWidth: 1.5,
-                                pointRadius: 0,
-                                tension: 0.3,
-                                fill: true
-                            }}]
-                        }},
-                        options: {{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {{ legend: {{ display: false }} }},
-                            scales: {{
-                                x: {{ display: false }},
-                                y: {{ display: false, min: 0, max: 1 }}
-                            }}
-                        }}
-                    }});
-                }}
-                
-                // Reward sparkline
-                const rewardCtx = document.getElementById('reward-{agent_id}');
-                if (rewardCtx && window.Chart) {{
-                    // Destroy existing chart if it exists
-                    const existingRewardChart = Chart.getChart('reward-{agent_id}');
-                    if (existingRewardChart) {{
-                        existingRewardChart.destroy();
-                    }}
-                    
-                    new Chart(rewardCtx, {{
-                        type: 'line',
-                        data: {{
-                            labels: {json.dumps(ticks)},
-                            datasets: [{{
-                                data: {json.dumps(reward_history)},
-                                borderColor: 'rgb(34, 197, 94)',
-                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                borderWidth: 1.5,
-                                pointRadius: 0,
-                                tension: 0.3,
-                                fill: true
-                            }}]
-                        }},
-                        options: {{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {{ legend: {{ display: false }} }},
-                            scales: {{
-                                x: {{ display: false }},
-                                y: {{ display: false, min: 0 }}
-                            }}
-                        }}
-                    }});
-                }}
-            }}, 100);
+            initBurnoutSparkline('{agent_id}', {json.dumps(ticks)}, {json.dumps(burnout_history)});
+            initRewardSparkline('{agent_id}', {json.dumps(ticks)}, {json.dumps(reward_history)});
         """),
         
         cls="mt-2"
