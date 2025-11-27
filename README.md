@@ -143,25 +143,18 @@ Where:
 - $f_{base}$ = Base frequency from strategy
 - $f_{feedback}$ = Feedback modifier from previous reward
 
-**State Machine**
+**State Machine & Psychological Metrics**
 
-Agents transition between states based on burnout and rewards:
-
-| State | Description |
-|-------|-------------|
-| **OPTIMIZER** | Balanced, sustainable |
-| **HUSTLER** | High output, rising burnout |
-| **TRUE_BELIEVER** | Intrinsically motivated |
-| **BURNED_OUT** | Exhausted, low output |
-
-**Psychological Metrics**
-
-| Metric | Description |
-|--------|-------------|
-| **Burnout** | Accumulates with high output, decreases with rest |
-| **Addiction** | Driven by intermittent reinforcement |
-| **Resilience** | Ability to recover from negative rewards |
-| **Arousal/Anxiety** | Engagement with platform |
+| Category | Item | Description |
+|----------|------|-------------|
+| **State** | OPTIMIZER | Balanced, sustainable |
+| **State** | HUSTLER | High output, rising burnout |
+| **State** | TRUE_BELIEVER | Intrinsically motivated |
+| **State** | BURNED_OUT | Exhausted, low output |
+| **Metric** | Burnout | Accumulates with high output, decreases with rest |
+| **Metric** | Addiction | Driven by intermittent reinforcement |
+| **Metric** | Resilience | Ability to recover from negative rewards |
+| **Metric** | Arousal/Anxiety | Engagement with platform |
 
 ### Platform Governance Models
 
@@ -174,27 +167,20 @@ Agents transition between states based on burnout and rewards:
 
 ### Metrics & Analytics
 
-**Agent-Level Metrics**
-
-| Metric | Description |
-|--------|-------------|
-| **Earnings** | Total CPM-based revenue |
-| **Views** | Total content views |
-| **Posts** | Total content generated |
-| **Burnout** | Exhaustion level (0-1) |
-| **Addiction** | Compulsive behavior (0-1) |
-| **Resilience** | Recovery ability (0-1) |
-| **Quality/Diversity/Consistency** | Content traits (0-1) |
-
-**Platform-Level Metrics**
-
-| Metric | Description |
-|--------|-------------|
-| **Total Earnings** | Aggregate creator revenue |
-| **Average Burnout** | Platform health indicator |
-| **Burnout Rate** | % of creators in BURNED_OUT state |
-| **Addiction Rate** | % of creators with high addiction |
-| **Mode** | Reinforcement strategy (differential/intermittent/hybrid) |
+| Level | Metric | Description |
+|-------|--------|-------------|
+| **Agent** | Earnings | Total CPM-based revenue |
+| **Agent** | Views | Total content views |
+| **Agent** | Posts | Total content generated |
+| **Agent** | Burnout | Exhaustion level (0-1) |
+| **Agent** | Addiction | Compulsive behavior (0-1) |
+| **Agent** | Resilience | Recovery ability (0-1) |
+| **Agent** | Quality/Diversity/Consistency | Content traits (0-1) |
+| **Platform** | Total Earnings | Aggregate creator revenue |
+| **Platform** | Average Burnout | Platform health indicator |
+| **Platform** | Burnout Rate | % of creators in BURNED_OUT state |
+| **Platform** | Addiction Rate | % of creators with high addiction |
+| **Platform** | Mode | Reinforcement strategy (differential/intermittent/hybrid) |
 
 ---
 
