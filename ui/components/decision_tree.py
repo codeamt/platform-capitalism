@@ -32,7 +32,7 @@ def decision_tree(agent):
     
     return Div(
         # Header
-        P("🧠 Decision Process", cls="text-xs font-semibold text-gray-300 mb-2"),
+        P("🧠 Decision Process", cls="text-xs font-semibold text-gray-300 mb-3"),
         
         # Decision tree container
         Div(
@@ -56,10 +56,10 @@ def decision_tree(agent):
             
             _result_node(agent),
             
-            cls="bg-gray-900 rounded p-3 border border-gray-700"
+            cls="bg-gray-900 rounded p-4 border border-gray-700 mb-2"
         ),
         
-        cls="mt-3"
+        cls="pb-2"
     )
 
 
@@ -152,7 +152,7 @@ def _result_node(agent):
             Span(subtitle, cls="text-xs text-gray-500 italic"),
             cls="ml-2"
         ),
-        cls="mb-1"
+        cls="mb-2 pb-1"
     )
 
 

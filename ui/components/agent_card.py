@@ -98,11 +98,16 @@ def agent_card(agent):
                 decision_tree(agent),
                 id="decision",
                 role="tabpanel",
-                cls="overflow-y-auto",
-                style="max-height: 400px; display: none;"
+                cls="overflow-y-auto overflow-x-hidden",
+                style="max-height: 400px; display: none; padding-bottom: 1rem;"
             ),
             
-            # Tab switching handled by external JS (tabs.js)
+            # Initialize tabs for this card
+            Script("""
+                if (typeof initAgentTabs === 'function') {
+                    setTimeout(initAgentTabs, 100);
+                }
+            """)
         ),
         cls="bg-gray-800 border-gray-700",
         style="height: auto; max-height: 600px; flex-shrink: 0;"
@@ -110,25 +115,50 @@ def agent_card(agent):
 
 def _metric_row(label, value, emoji, danger_threshold=0.7, inverse=False):
     """Helper to display a metric with color coding."""
-    # Color based on value (red = bad, green = good)
+    # Enhanced semantic color coding with better contrast
     if inverse:  # Higher is better (e.g., resilience)
-        color = "text-green-600" if value > 0.6 else "text-yellow-600" if value > 0.4 else "text-red-600"
+        if value > 0.6:
+            text_color = "text-emerald-400"
+            bar_color = "bg-gradient-to-r from-emerald-500 to-emerald-600"
+            glow = "shadow-emerald-500/20"
+        elif value > 0.4:
+            text_color = "text-amber-400"
+            bar_color = "bg-gradient-to-r from-amber-500 to-yellow-500"
+            glow = "shadow-amber-500/20"
+        else:
+            text_color = "text-red-400"
+            bar_color = "bg-gradient-to-r from-red-500 to-red-600"
+            glow = "shadow-red-500/30 shadow-lg"
     else:  # Lower is better (e.g., burnout, addiction)
-        color = "text-red-600" if value > danger_threshold else "text-yellow-600" if value > 0.4 else "text-green-600"
+        if value > danger_threshold:
+            text_color = "text-red-400"
+            bar_color = "bg-gradient-to-r from-red-500 to-red-600"
+            glow = "shadow-red-500/30 shadow-lg"
+        elif value > 0.4:
+            text_color = "text-amber-400"
+            bar_color = "bg-gradient-to-r from-amber-500 to-yellow-500"
+            glow = "shadow-amber-500/20"
+        else:
+            text_color = "text-emerald-400"
+            bar_color = "bg-gradient-to-r from-emerald-500 to-emerald-600"
+            glow = "shadow-emerald-500/20"
     
-    # Progress bar
+    # Progress bar width
     bar_width = f"{int(value * 100)}%"
-    bar_color = "bg-red-500" if (not inverse and value > danger_threshold) or (inverse and value < 0.4) else "bg-yellow-500" if value > 0.4 and value < 0.7 else "bg-green-500"
+    
+    # Add pulse animation for critical values
+    is_critical = (not inverse and value > danger_threshold) or (inverse and value < 0.4)
+    pulse_class = "animate-pulse" if is_critical else ""
     
     return Div(
         Div(
-            Span(f"{emoji} {label}", cls="text-xs font-medium"),
-            Span(f"{value:.2f}", cls=f"text-xs font-bold {color}"),
+            Span(f"{emoji} {label}", cls=f"text-xs font-medium text-gray-300 {pulse_class if is_critical else ''}"),
+            Span(f"{value:.2f}", cls=f"text-xs font-bold {text_color}"),
             cls="flex justify-between mb-1"
         ),
         Div(
-            Div(cls=f"h-1.5 rounded {bar_color}", style=f"width: {bar_width}"),
-            cls="w-full bg-gray-200 rounded h-1.5"
+            Div(cls=f"h-2 rounded {bar_color} {glow} transition-all duration-300", style=f"width: {bar_width}"),
+            cls="w-full bg-gray-700 rounded h-2"
         )
     )
 
@@ -154,29 +184,39 @@ def _agent_sparklines(agent):
     return Div(
         H3("Recent Trends", cls="text-sm font-semibold text-gray-300 mb-2 mt-3 pt-3 border-t border-gray-700"),
         
-        # Two sparklines side by side
+        # Two sparklines side by side with improved visibility
         Div(
             # Burnout sparkline
             Div(
-                P("🔥 Burnout", cls="text-xs text-gray-400 mb-1"),
-                Canvas(id=f"burnout-{agent_id}", width="150", height="40", style="max-height: 40px; width: 100%;"),
+                P("🔥 Burnout", cls="text-xs font-semibold text-gray-300 mb-1"),
+                Div(
+                    Canvas(id=f"burnout-{agent_id}", width="150", height="60", style="max-height: 60px; width: 100%;"),
+                    cls="bg-gray-750 rounded p-2 border border-gray-700"
+                ),
                 cls="flex-1"
             ),
             
             # Reward sparkline
             Div(
-                P("🎯 Rewards", cls="text-xs text-gray-400 mb-1"),
-                Canvas(id=f"reward-{agent_id}", width="150", height="40", style="max-height: 40px; width: 100%;"),
+                P("🎯 Rewards", cls="text-xs font-semibold text-gray-300 mb-1"),
+                Div(
+                    Canvas(id=f"reward-{agent_id}", width="150", height="60", style="max-height: 60px; width: 100%;"),
+                    cls="bg-gray-750 rounded p-2 border border-gray-700"
+                ),
                 cls="flex-1"
             ),
             
-            cls="grid grid-cols-2 gap-2"
+            cls="grid grid-cols-2 gap-3"
         ),
         
         # Initialize sparkline charts using external JS
         Script(f"""
             initBurnoutSparkline('{agent_id}', {json.dumps(ticks)}, {json.dumps(burnout_history)});
             initRewardSparkline('{agent_id}', {json.dumps(ticks)}, {json.dumps(reward_history)});
+            // Re-initialize tabs after charts load
+            if (typeof initAgentTabs === 'function') {{
+                setTimeout(initAgentTabs, 200);
+            }}
         """),
         
         cls="mt-2"
