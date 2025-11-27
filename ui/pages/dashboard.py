@@ -119,13 +119,21 @@ def _status_bar(tick_count, summary, agents):
     
     mode = GLOBAL_ENVIRONMENT.policy_engine.config.mode
     
-    # Determine status color based on burnout
-    if avg_burnout < 0.4:
+    # Get system health score (0-1 scale, calculated in environment.py)
+    summary = GLOBAL_ENVIRONMENT.summary()
+    system_health = summary.get("system_health_score", 0.5)
+    
+    # Determine status based on system health score (considers burnout, addiction, resilience)
+    # Thresholds: 0.75+ = Healthy, 0.60-0.75 = Warning, 0.45-0.60 = At Risk, <0.45 = Critical
+    if system_health >= 0.75:
         status_color = "bg-green-600"
         status_text = "✅ Healthy"
-    elif avg_burnout < 0.7:
+    elif system_health >= 0.60:
         status_color = "bg-yellow-600"
         status_text = "⚠️ Warning"
+    elif system_health >= 0.45:
+        status_color = "bg-orange-600"
+        status_text = "⚠️ At Risk"
     else:
         status_color = "bg-red-600"
         status_text = "🚨 Critical"

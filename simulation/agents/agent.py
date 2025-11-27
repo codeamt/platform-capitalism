@@ -1,3 +1,4 @@
+import random
 from simulation.agents.state_machine import CreatorStateMachine, StateContext, CreatorState
 from simulation.agents.strategy_selector import StrategySelector
 
@@ -49,69 +50,102 @@ class Agent:
         
         Key research insight: Intermittent reinforcement drives addiction and burnout,
         while differential reinforcement promotes sustainable, healthy patterns.
+        
+        Now includes stochastic variation to create realistic individual differences.
         """
         reward_magnitude = rewards.get("final_reward", 0)
         predictability = rewards.get("predictability", 0.5)
+        
+        # Individual personality variation (each agent responds slightly differently)
+        personality_noise = random.gauss(0, 0.015)  # ±1.5% individual variation
         
         # === BURNOUT DYNAMICS ===
         # Burnout increases when hustling, decreases when resting
         if state == CreatorState.HUSTLER:
             # Intermittent reinforcement causes MORE burnout (chasing unpredictable rewards)
-            burnout_increase = 0.05 if policy_cfg.mode == "differential" else 0.08
+            base_increase = 0.05 if policy_cfg.mode == "differential" else 0.08
+            # Add individual variation (some people burn out faster/slower)
+            burnout_increase = base_increase + random.gauss(0, 0.02)
             self.profile.burnout = min(1.0, self.profile.burnout + burnout_increase)
         elif state == CreatorState.BURNOUT:
             # Recovery is faster with differential (predictable rest rewards)
-            recovery_rate = 0.03 if policy_cfg.mode == "differential" else 0.02
+            base_recovery = 0.03 if policy_cfg.mode == "differential" else 0.02
+            # Add individual recovery rate variation
+            recovery_rate = base_recovery + random.gauss(0, 0.01)
             self.profile.burnout = max(0.0, self.profile.burnout - recovery_rate)
         else:
-            # Baseline burnout reduction
-            self.profile.burnout = max(0.0, self.profile.burnout - 0.01)
+            # Baseline burnout reduction with individual variation
+            baseline_reduction = 0.01 + random.gauss(0, 0.005)
+            self.profile.burnout = max(0.0, self.profile.burnout - baseline_reduction)
+        
+        # Add independent noise to burnout (life events, external stressors)
+        self.profile.burnout = max(0.0, min(1.0, self.profile.burnout + random.gauss(0, 0.01)))
         
         # === AROUSAL/ANXIETY DYNAMICS ===
         # Unpredictable rewards create anxiety and hypervigilance
         if policy_cfg.mode == "intermittent":
             # Intermittent: High arousal from unpredictability
             if reward_magnitude > 0:
-                # Got reward - dopamine spike
-                self.profile.arousal_level = min(1.0, self.profile.arousal_level + 0.06)
+                # Got reward - dopamine spike (with individual variation)
+                arousal_increase = 0.06 + random.gauss(0, 0.015)
+                self.profile.arousal_level = min(1.0, self.profile.arousal_level + arousal_increase)
             else:
-                # Missed reward - anxiety increases
-                self.profile.arousal_level = min(1.0, self.profile.arousal_level + 0.03)
+                # Missed reward - anxiety increases (with individual variation)
+                anxiety_increase = 0.03 + random.gauss(0, 0.01)
+                self.profile.arousal_level = min(1.0, self.profile.arousal_level + anxiety_increase)
         else:
             # Differential: Stable arousal levels
             if reward_magnitude > 0.5:
-                self.profile.arousal_level = min(1.0, self.profile.arousal_level + 0.02)
+                arousal_change = 0.02 + random.gauss(0, 0.01)
+                self.profile.arousal_level = min(1.0, self.profile.arousal_level + arousal_change)
             else:
-                self.profile.arousal_level = max(0.0, self.profile.arousal_level - 0.02)
+                arousal_change = 0.02 + random.gauss(0, 0.01)
+                self.profile.arousal_level = max(0.0, self.profile.arousal_level - arousal_change)
+        
+        # Add independent noise to arousal (daily mood fluctuations)
+        self.profile.arousal_level = max(0.0, min(1.0, self.profile.arousal_level + random.gauss(0, 0.015)))
         
         # === ADDICTION DYNAMICS ===
         # Intermittent reinforcement is HIGHLY addictive (like gambling)
         if policy_cfg.mode == "intermittent":
             # Unpredictable rewards drive compulsive behavior
             if reward_magnitude > 0.3:
-                # Big reward hit - addiction spike
-                self.profile.addiction_drive = min(1.0, self.profile.addiction_drive + 0.07)
+                # Big reward hit - addiction spike (with individual susceptibility)
+                addiction_increase = 0.07 + random.gauss(0, 0.02)
+                self.profile.addiction_drive = min(1.0, self.profile.addiction_drive + addiction_increase)
             else:
-                # Near-miss keeps addiction high
-                self.profile.addiction_drive = min(1.0, self.profile.addiction_drive + 0.02)
+                # Near-miss keeps addiction high (with variation)
+                near_miss_effect = 0.02 + random.gauss(0, 0.01)
+                self.profile.addiction_drive = min(1.0, self.profile.addiction_drive + near_miss_effect)
         elif policy_cfg.mode == "differential":
-            # Predictable rewards reduce addiction over time
-            self.profile.addiction_drive = max(0.0, self.profile.addiction_drive - 0.02)
+            # Predictable rewards reduce addiction over time (with individual recovery rates)
+            addiction_reduction = 0.02 + random.gauss(0, 0.005)
+            self.profile.addiction_drive = max(0.0, self.profile.addiction_drive - addiction_reduction)
         else:  # hybrid
-            # Moderate addiction effects
+            # Moderate addiction effects (with variation)
             if reward_magnitude > 0.3:
-                self.profile.addiction_drive = min(1.0, self.profile.addiction_drive + 0.03)
+                addiction_change = 0.03 + random.gauss(0, 0.01)
+                self.profile.addiction_drive = min(1.0, self.profile.addiction_drive + addiction_change)
             else:
-                self.profile.addiction_drive = max(0.0, self.profile.addiction_drive - 0.01)
+                addiction_change = 0.01 + random.gauss(0, 0.005)
+                self.profile.addiction_drive = max(0.0, self.profile.addiction_drive - addiction_change)
+        
+        # Add independent noise to addiction (environmental triggers, social influences)
+        self.profile.addiction_drive = max(0.0, min(1.0, self.profile.addiction_drive + random.gauss(0, 0.01)))
         
         # === RESILIENCE DYNAMICS ===
         # Differential reinforcement builds resilience through predictability
         if policy_cfg.mode == "differential" and predictability > 0.8:
-            # Predictable environment builds confidence and resilience
-            self.profile.emotional_resilience = min(1.0, self.profile.emotional_resilience + 0.01)
+            # Predictable environment builds confidence and resilience (with individual growth rates)
+            resilience_growth = 0.01 + random.gauss(0, 0.003)
+            self.profile.emotional_resilience = min(1.0, self.profile.emotional_resilience + resilience_growth)
         elif policy_cfg.mode == "intermittent":
-            # Unpredictability erodes resilience
-            self.profile.emotional_resilience = max(0.0, self.profile.emotional_resilience - 0.01)
+            # Unpredictability erodes resilience (with individual vulnerability)
+            resilience_erosion = 0.01 + random.gauss(0, 0.003)
+            self.profile.emotional_resilience = max(0.0, self.profile.emotional_resilience - resilience_erosion)
+        
+        # Add independent noise to resilience (personal growth, therapy, support systems)
+        self.profile.emotional_resilience = max(0.0, min(1.0, self.profile.emotional_resilience + random.gauss(0, 0.008)))
 
     def get_state_probabilities(self, rewards):
         """Get current state transition probabilities for this agent."""

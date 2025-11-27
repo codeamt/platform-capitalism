@@ -106,17 +106,44 @@ class PolicyEngine:
         volume_multiplier = strategy_metrics.get("volume", 1.0)
         base_rewards["volume"] *= volume_multiplier  # Apply volume strategy multiplier
 
+        # === PLATFORM ALGORITHM NOISE ===
+        # Real platforms have algorithmic variability (A/B tests, recommendation randomness)
+        algorithm_noise = random.gauss(1.0, 0.25)  # ±25% variance from algorithm
+        
+        # === VIRAL MECHANICS ===
+        # Exceptional content can go viral (power-law distribution)
+        viral_multiplier = 1.0
+        if pr.quality > 0.75 and pr.diversity > 0.65:
+            # High quality + diverse content has viral potential
+            # Use Pareto distribution for long-tail viral hits
+            viral_roll = random.random()
+            if viral_roll < 0.05:  # 5% chance of viral content
+                viral_multiplier = random.paretovariate(1.5)  # Power-law: most 1-3x, rare 10x+
+        
+        # === CONTENT FAILURE PENALTY ===
+        # Low quality content can backfire (negative engagement, backlash)
+        failure_penalty = 0.0
+        if pr.quality < 0.3 or pr.consistency < 0.2:
+            # Poor quality or inconsistent content gets penalized
+            failure_penalty = -random.uniform(0.05, 0.15)
+        
         # Apply mode-specific transformations
         if p.mode == "intermittent":
-            rewards = self._apply_intermittent(base_rewards, agent)
+            rewards = self._apply_intermittent(base_rewards, agent, algorithm_noise, viral_multiplier, failure_penalty)
         elif p.mode == "hybrid":
-            rewards = self._apply_hybrid(base_rewards, agent)
+            rewards = self._apply_hybrid(base_rewards, agent, algorithm_noise, viral_multiplier, failure_penalty)
         else:  # differential
             rewards = base_rewards
             # Calculate final_reward excluding cpm_earnings (it's a tracking metric, not a reward)
             reward_sum = sum(v for k, v in rewards.items() if k != "cpm_earnings")
-            rewards["final_reward"] = reward_sum * volume_multiplier
-            rewards["predictability"] = 1.0  # Fully predictable
+            # Apply variance and viral mechanics
+            final_reward = (reward_sum * volume_multiplier * algorithm_noise * viral_multiplier) + failure_penalty
+            rewards["final_reward"] = final_reward
+            rewards["predictability"] = 0.85  # High but not perfect (algorithm still has some variance)
+            rewards["algorithm_variance"] = algorithm_noise
+            rewards["viral_multiplier"] = viral_multiplier
+            if failure_penalty < 0:
+                rewards["failure_penalty"] = failure_penalty
         
         # Track for analysis
         self.reward_history.append({
@@ -145,7 +172,7 @@ class PolicyEngine:
     # ---------------------------------------------------------
     # Intermittent reinforcement (the "bad" approach)
     # ---------------------------------------------------------
-    def _apply_intermittent(self, base_rewards, agent):
+    def _apply_intermittent(self, base_rewards, agent, algorithm_noise, viral_multiplier, failure_penalty):
         """Apply intermittent reinforcement - unpredictable, addictive.
         
         Key characteristics:
@@ -160,7 +187,7 @@ class PolicyEngine:
         if random.random() > p.intermittent_probability:
             # No reward this tick - drives anxiety and compulsive checking
             return {
-                "final_reward": 0,
+                "final_reward": failure_penalty,  # Can still get failure penalty
                 "predictability": 0.0,  # Completely unpredictable
                 "intermittent_miss": -0.05,  # Psychological cost of missing reward
             }
@@ -169,14 +196,19 @@ class PolicyEngine:
         variance_multiplier = random.uniform(0.5, p.intermittent_variance)
         # Exclude cpm_earnings from reward sum (it's a tracking metric)
         reward_sum = sum(v for k, v in base_rewards.items() if k != "cpm_earnings")
-        total = reward_sum * variance_multiplier
+        # Apply all variance sources (intermittent, algorithm, viral)
+        total = (reward_sum * variance_multiplier * algorithm_noise * viral_multiplier) + failure_penalty
         
         # Intermittent rewards are opaque - creator doesn't know WHY they got it
         result = {
             "final_reward": total,
             "predictability": 0.1,  # Very low predictability
-            "intermittent_hit": total * 0.2,  # Dopamine spike from unpredictability
+            "intermittent_hit": total * 0.2 if total > 0 else 0,  # Dopamine spike from unpredictability
+            "algorithm_variance": algorithm_noise,
+            "viral_multiplier": viral_multiplier
         }
+        if failure_penalty < 0:
+            result["failure_penalty"] = failure_penalty
         # Preserve cpm_earnings for tracking
         if "cpm_earnings" in base_rewards:
             result["cpm_earnings"] = base_rewards["cpm_earnings"]
@@ -185,17 +217,17 @@ class PolicyEngine:
     # ---------------------------------------------------------
     # Hybrid mode (compromise approach)
     # ---------------------------------------------------------
-    def _apply_hybrid(self, base_rewards, agent):
+    def _apply_hybrid(self, base_rewards, agent, algorithm_noise, viral_multiplier, failure_penalty):
         """Blend differential and intermittent approaches."""
         p = self.config
         
-        # Differential component (predictable)
+        # Differential component (predictable with some variance)
         # Exclude cpm_earnings from reward sum
         reward_sum = sum(v for k, v in base_rewards.items() if k != "cpm_earnings")
-        differential_total = reward_sum
+        differential_total = (reward_sum * algorithm_noise * viral_multiplier) + failure_penalty
         
         # Intermittent component (unpredictable)
-        intermittent_result = self._apply_intermittent(base_rewards.copy(), agent)
+        intermittent_result = self._apply_intermittent(base_rewards.copy(), agent, algorithm_noise, viral_multiplier, failure_penalty)
         intermittent_total = intermittent_result.get("final_reward", 0)
         
         # Blend based on hybrid_mix parameter
@@ -203,10 +235,14 @@ class PolicyEngine:
         
         result = {
             "final_reward": blended_total,
-            "predictability": p.hybrid_mix,  # Predictability scales with differential weight
+            "predictability": p.hybrid_mix * 0.7,  # Predictability scales with differential weight (but never perfect)
             "differential_component": differential_total * p.hybrid_mix,
-            "intermittent_component": intermittent_total * (1 - p.hybrid_mix)
+            "intermittent_component": intermittent_total * (1 - p.hybrid_mix),
+            "algorithm_variance": algorithm_noise,
+            "viral_multiplier": viral_multiplier
         }
+        if failure_penalty < 0:
+            result["failure_penalty"] = failure_penalty
         # Preserve cpm_earnings for tracking
         if "cpm_earnings" in base_rewards:
             result["cpm_earnings"] = base_rewards["cpm_earnings"]

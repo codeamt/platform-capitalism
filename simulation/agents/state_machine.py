@@ -55,15 +55,26 @@ class CreatorStateMachine:
                 rewards.get("consistency", 0) * 0.4
             ),
             CreatorState.TRUE_BELIEVER: (
-                ctx.diversity * 0.4 + 
-                ctx.quality * 0.4 + 
-                (1 - ctx.addiction) * 0.2
+                ctx.diversity * 0.5 +  # Increased from 0.4
+                ctx.quality * 0.5 +     # Increased from 0.4
+                (1 - ctx.addiction) * 0.4  # Increased from 0.2 to make this state more accessible
             ),
             CreatorState.BURNOUT: (
                 ctx.burnout * 0.7 + 
                 (1 - ctx.resilience) * 0.3
             ),
         }
+        
+        # Add state persistence bonus (hysteresis) - agents tend to stay in current state
+        # This prevents rapid state flipping and creates more realistic behavior patterns
+        current_state = self.agent.profile.current_state
+        persistence_bonus = 0.25  # 25% bonus to current state score
+        if current_state in transitions:
+            transitions[current_state] += persistence_bonus
+        
+        # Add small random noise to each transition score (platform algorithm variability)
+        for state in transitions:
+            transitions[state] += random.gauss(0, 0.05)
         
         # Normalize to probabilities
         total = sum(transitions.values()) + 1e-6  # Avoid division by zero
