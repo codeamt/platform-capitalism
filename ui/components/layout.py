@@ -34,8 +34,8 @@ def nav_bar(current_path="/"):
                     cls=f"px-3 py-2 rounded-lg font-medium transition text-sm {'bg-blue-600 text-white' if current_path == '/governance-lab' else 'text-gray-300 hover:bg-gray-700'}"
                 ),
                 A(
-                    "📊 Export Data",
-                    href="/export/json",
+                    "📊 Export CSV",
+                    href="/export/csv",
                     cls="px-3 py-2 rounded-lg font-medium text-gray-300 hover:bg-gray-700 transition text-sm"
                 ),
                 cls="hidden md:flex gap-2"
@@ -56,8 +56,8 @@ def nav_bar(current_path="/"):
                 cls=f"block px-4 py-3 font-medium transition {'bg-blue-600 text-white' if current_path == '/governance-lab' else 'text-gray-300 hover:bg-gray-700'}"
             ),
             A(
-                "📊 Export Data",
-                href="/export/json",
+                "📊 Export CSV",
+                href="/export/csv",
                 cls="block px-4 py-3 font-medium text-gray-300 hover:bg-gray-700 transition"
             ),
             id="mobile-nav",
