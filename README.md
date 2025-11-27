@@ -11,7 +11,6 @@
 This simulation environment models creator labor within platform economies using a state-machine framework where agents transition between four archetypal creative states—Optimizer, Hustler, True Believer, and Burnout—based on differential and intermittent reinforcement schedules. Agents generate content dynamically (3-10 posts/day) with earnings calculated via realistic CPM-based economics ($2-$40 per 1,000 views), reflecting empirical data from content farm research. A policy engine implements variable reinforcement regimes that shape creator behavior through rewards for quality, consistency, diversity, and volume, while tracking both monetary earnings and psychological metrics (view counts, addiction, burnout, resilience). The research dashboard provides real-time visibility into algorithmic decision-making and creator wellbeing through interactive visualizations, decision tree transparency tools, scenario comparison, and policy impact previews. This system enables researchers to experimentally investigate how platform monetization models and reinforcement schedules interact to shape creator mental health, economic outcomes, and behavioral patterns, offering an accessible framework for studying the economic and psychological dynamics of platform labor.
 
 ![Dashboard Overview](static/img/dashboard.png)
-*Interactive dashboard showing creator states, system health, and real-time metrics*
 
 ---
 
@@ -25,12 +24,6 @@ Based on empirical research into creator economies, particularly:
 
 2. **Mears, A. (2023).** [*Bringing Bourdieu to a Content Farm: Social Media Production Fields and the Cultural Economy of Attention*](https://journals.sagepub.com/doi/abs/10.1177/20563051231193027). Social Media + Society, 9(3).
 
-**Key Insights:**
-- CPM-based monetization ($2-$40 per 1,000 views)
-- Content farm economics (median $5K-$30K/month per page)
-- Platform reinforcement strategies (differential vs. intermittent)
-- Creator burnout and addiction patterns
-- Capital conversion dynamics (financial, status, cultural)
 
 ### Platform Dynamics
 
@@ -86,17 +79,145 @@ graph TD
 - State Transitions: Wellbeing determines creator state (OPTIMIZER → HUSTLER → BURNED_OUT)
 - Feedback Loop: Creator state influences future content generation strategy
 
-### Additional Screenshots
+**Key Insights:**
+- CPM-based monetization ($2-$40 per 1,000 views)
+- Content farm economics (median $5K-$30K/month per page)
+- Platform reinforcement strategies (differential vs. intermittent)
+- Creator burnout and addiction patterns
+- Capital conversion dynamics (financial, status, cultural)
 
-#### Agent Decision Tree
+---
+
+## 🎮 Simulation Dynamics
+
+### CPM-Based Economics
+
+**Formula:**
+```
+Earnings = (Posts × Views_per_Post / 1000) × CPM_Rate × Quality_Bonus × Engagement_Bonus
+```
+
+$$
+E = \frac{P \times V}{1000} \times C \times Q_b \times E_b
+$$
+
+Where:
+- $E$ = Earnings
+- $P$ = Posts per day
+- $V$ = Views per post
+- $C$ = CPM rate
+- $Q_b$ = Quality bonus
+- $E_b$ = Engagement bonus
+
+**Example (Optimal Scenario):**
+- Agent posts **5 posts/day**
+- Each post gets **5,000 views**
+- CPM = **$10**
+- Quality bonus = **1.4x**
+- Engagement bonus = **1.0x**
+
+**Daily Earnings:** `(5 × 5,000 / 1,000) × $10 × 1.4 × 1.0 = $350/day`
+**Monthly:** ~$10,500 (matches research: median $5K-$30K/mo)
+
+### Agent Behavior Model
+
+**Content Generation**
+
+Agents generate content based on:
+1. Strategy (rapid_posting, strategic_pause, consistent_quality)
+2. Previous Reward (positive/negative reinforcement)
+3. Quality Trait (base productivity)
+
+**Formula:**
+```python
+posts_per_day = quality × (base_frequency + feedback_modifier) × 10.0
+```
+
+$$
+P_{day} = Q \times (f_{base} + f_{feedback}) \times 10.0
+$$
+
+Where:
+- $P_{day}$ = Posts per day
+- $Q$ = Quality trait (0-1)
+- $f_{base}$ = Base frequency from strategy
+- $f_{feedback}$ = Feedback modifier from previous reward
+
+**State Machine**
+
+Agents transition between states based on burnout and rewards:
+- OPTIMIZER: Balanced, sustainable
+- HUSTLER: High output, rising burnout
+- TRUE_BELIEVER: Intrinsically motivated
+- BURNED_OUT: Exhausted, low output
+
+**Psychological Metrics**
+
+- Burnout: Accumulates with high output, decreases with rest
+- Addiction: Driven by intermittent reinforcement
+- Resilience: Ability to recover from negative rewards
+- Arousal/Anxiety: Engagement with platform
+
+### Platform Governance Models
+
+**1. Exploitative Platform**
+- CPM: $5 (low)
+- Reinforcement: Intermittent (unpredictable)
+- Views: 3,000/post (harder to grow)
+- Result: High burnout, low earnings, addiction
+
+**2. Optimal Platform**
+- CPM: $10 (fair)
+- Reinforcement: Differential (predictable)
+- Views: 5,000/post (moderate growth)
+- Result: Sustainable, balanced earnings
+
+**3. Balanced Platform**
+- CPM: $15 (good)
+- Reinforcement: Hybrid (50/50 mix)
+- Views: 7,000/post (growing audience)
+- Result: Moderate burnout, good earnings
+
+**4. Cooperative Platform**
+- CPM: $20 (premium)
+- Reinforcement: Differential + UBI
+- Views: 10,000/post (large audience)
+- Result: Low burnout, high earnings, sustainable
+
+### Metrics & Analytics
+
+**Agent-Level Metrics**
+- Earnings: Total CPM-based revenue
+- Views: Total content views
+- Posts: Total content generated
+- Burnout: Exhaustion level (0-1)
+- Addiction: Compulsive behavior (0-1)
+- Resilience: Recovery ability (0-1)
+- Quality/Diversity/Consistency: Content traits (0-1)
+
+**Platform-Level Metrics**
+- Total Earnings: Aggregate creator revenue
+- Average Burnout: Platform health indicator
+- Burnout Rate: % of creators in BURNED_OUT state
+- Addiction Rate: % of creators with high addiction
+- Mode: Reinforcement strategy (differential/intermittent/hybrid)
+
+---
+
+### User Interface
+
+#### Simulation Dashboard
+![Dashboard](static/img/dashboard.png)
+*Interactive dashboard showing creator states, system health, and real-time metrics*
+
+#### Agent Metrics & Decision Tree
 ![Agent Info](static/img/agent_info.png)
 *Individual creator cards with decision tree visualization and wellbeing metrics*
 
-#### System Health Analytics - Part 1
+#### System Health Analytics
 ![System Health 1](static/img/system_health_1.png)
 *System health gauge and agent trait distributions*
 
-#### System Health Analytics - Part 2
 ![System Health 2](static/img/system_health_2.png)
 *Reward characteristics, state transitions, and metric correlations*
 
@@ -227,113 +348,25 @@ make clean              # Clean temporary files
 
 ---
 
-## 🎮 Simulation Dynamics
+## 🧪 Testing
 
-### CPM-Based Economics
-
-**Formula:**
-```
-Earnings = (Posts × Views_per_Post / 1000) × CPM_Rate × Quality_Bonus × Engagement_Bonus
+```bash
+# Run validation tests
+uv run python tests/validate_simulation.py
 ```
 
-**Example (Optimal Scenario):**
-- Agent posts **5 posts/day**
-- Each post gets **5,000 views**
-- CPM = **$10**
-- Quality bonus = **1.4x**
-- Engagement bonus = **1.0x**
-
-**Daily Earnings:** `(5 × 5,000 / 1,000) × $10 × 1.4 × 1.0 = $350/day`
-
-**Monthly:** ~$10,500 (matches research: median $5K-$30K/mo)
-
-### Scenario Comparison
-
-| Scenario | CPM | Views/Post | Est. Daily Earnings* |
-|----------|-----|------------|---------------------|
-| **Exploitative** | $5 | 3,000 | $75-$150 |
-| **Optimal** | $10 | 5,000 | $250-$500 |
-| **Balanced** | $15 | 7,000 | $525-$1,050 |
-| **Cooperative** | $20 | 10,000 | $1,000-$2,000 |
-
-*Based on 5 posts/day, quality 0.8
-
-### Agent Behavior Model
-
-**Content Generation**
-
-Agents generate content based on:
-1. Strategy (rapid_posting, strategic_pause, consistent_quality)
-2. Previous Reward (positive/negative reinforcement)
-3. Quality Trait (base productivity)
-
-**Formula:**
-```python
-posts_per_day = quality × (base_frequency + feedback_modifier) × 10.0
-```
-
-**State Machine**
-
-Agents transition between states based on burnout and rewards:
-- OPTIMIZER: Balanced, sustainable
-- HUSTLER: High output, rising burnout
-- TRUE_BELIEVER: Intrinsically motivated
-- BURNED_OUT: Exhausted, low output
-
-**Psychological Metrics**
-
-- Burnout: Accumulates with high output, decreases with rest
-- Addiction: Driven by intermittent reinforcement
-- Resilience: Ability to recover from negative rewards
-- Arousal/Anxiety: Engagement with platform
-
-### Platform Governance Models
-
-**1. Exploitative Platform**
-- CPM: $5 (low)
-- Reinforcement: Intermittent (unpredictable)
-- Views: 3,000/post (harder to grow)
-- Result: High burnout, low earnings, addiction
-
-**2. Optimal Platform**
-- CPM: $10 (fair)
-- Reinforcement: Differential (predictable)
-- Views: 5,000/post (moderate growth)
-- Result: Sustainable, balanced earnings
-
-**3. Balanced Platform**
-- CPM: $15 (good)
-- Reinforcement: Hybrid (50/50 mix)
-- Views: 7,000/post (growing audience)
-- Result: Moderate burnout, good earnings
-
-**4. Cooperative Platform**
-- CPM: $20 (premium)
-- Reinforcement: Differential + UBI
-- Views: 10,000/post (large audience)
-- Result: Low burnout, high earnings, sustainable
-
-### Metrics & Analytics
-
-**Agent-Level Metrics**
-- Earnings: Total CPM-based revenue
-- Views: Total content views
-- Posts: Total content generated
-- Burnout: Exhaustion level (0-1)
-- Addiction: Compulsive behavior (0-1)
-- Resilience: Recovery ability (0-1)
-- Quality/Diversity/Consistency: Content traits (0-1)
-
-**Platform-Level Metrics**
-- Total Earnings: Aggregate creator revenue
-- Average Burnout: Platform health indicator
-- Burnout Rate: % of creators in BURNED_OUT state
-- Addiction Rate: % of creators with high addiction
-- Mode: Reinforcement strategy (differential/intermittent/hybrid)
+Tests verify:
+- Agent state transitions
+- Reward calculations
+- Content generation
+- CPM earnings accuracy
+- Burnout accumulation
 
 ---
 
-## 📁 Project Structure
+## 🤝 Contributing
+
+### 📁 Project Structure
 
 ```
 platform-capitalism/
@@ -352,9 +385,9 @@ platform-capitalism/
 
 ---
 
-## 🔬 Key Features
+### 🔬 Key Features
 
-### ✅ Implemented
+#### ✅ Implemented
 
 - CPM-based earnings with realistic market rates ($2-$40/1K views)
 - Volume-based content generation (3-10 posts/day)
@@ -368,86 +401,59 @@ platform-capitalism/
 - Viral mechanics and reward variance
 - Platform algorithm variability
 
-### 🚧 Future Integrations
+#### 🚧 Future Integrations
 
 - Hugging Face LLM integration: Generate actual text content
+
+   > Two stub methods are available in `simulation/agents/agent.py` for future LLM integration:
+   
+   **1. `_build_markov_corpus()`**
+   Builds a statistical language model from agent's historical content.
+   
+   **2. `generate_content_prompt_hf(temperature=0.7, max_tokens=100)`**
+   Generates prompts for Hugging Face Inference API based on agent traits.
+   
+   **Example:**
+   ```python
+   agent = agents[0]
+   prompt_config = agent.generate_content_prompt_hf(temperature=0.7)
+   
+   # Returns:
+   {
+       "model": "gpt2",
+       "prompt": "Create a quick, engaging social media post about trending topics.",
+       "temperature": 0.65,  # Adjusted by agent.diversity
+       "max_tokens": 100,
+       "quality_target": 0.8,
+       "diversity_target": 0.6
+   }
+   ```
+
+   To run stub: 
+   
+   1. **Install dependencies:**
+      ```bash
+      uv add huggingface-hub transformers
+      ```
+   
+   2. **Set API key:**
+      ```bash
+      export HUGGINGFACE_API_KEY="your_key_here"
+      ```
+   
+   3. **Implement `ContentGenerator`** (see stub methods for interface)
+   
+   4. **Update `Environment.tick()`** to call content generation
+   
+   See stub method docstrings in `simulation/agents/agent.py` for full implementation details.
+
+**Other Features in Development:**
 - Markov chain fallback: Statistical content generation
 - Multi-platform support: TikTok, Instagram, YouTube
 - Advanced analytics: Correlation analysis, trend detection
 - API endpoints: REST API for external access
 - Mobile architecture: Responsive design for mobile clients
 
-See `FEEDBACK.md` for detailed future roadmap.
-
----
-
-## 🤖 Hugging Face Integration (Future)
-
-### Stub Methods Added
-
-Two stub methods are available in `simulation/agents/agent.py` for future LLM integration:
-
-#### 1. `_build_markov_corpus()`
-Builds a statistical language model from agent's historical content.
-
-#### 2. `generate_content_prompt_hf(temperature=0.7, max_tokens=100)`
-Generates prompts for Hugging Face Inference API based on agent traits.
-
-**Example:**
-```python
-agent = agents[0]
-prompt_config = agent.generate_content_prompt_hf(temperature=0.7)
-
-# Returns:
-{
-    "model": "gpt2",
-    "prompt": "Create a quick, engaging social media post about trending topics.",
-    "temperature": 0.65,  # Adjusted by agent.diversity
-    "max_tokens": 100,
-    "quality_target": 0.8,
-    "diversity_target": 0.6
-}
-```
-
-### Integration Guide
-
-1. **Install dependencies:**
-   ```bash
-   pip install huggingface-hub transformers
-   ```
-
-2. **Set API key:**
-   ```bash
-   export HUGGINGFACE_API_KEY="your_key_here"
-   ```
-
-3. **Implement `ContentGenerator`** (see stub methods for interface)
-
-4. **Update `Environment.tick()`** to call content generation
-
-See stub method docstrings in `simulation/agents/agent.py` for full implementation details.
-
----
-
-## 🧪 Testing
-
-```bash
-# Run validation tests
-python tests/validate_simulation.py
-```
-
-Tests verify:
-- Agent state transitions
-- Reward calculations
-- Content generation
-- CPM earnings accuracy
-- Burnout accumulation
-
----
-
-## 🤝 Contributing
-
-This is a research project. Contributions welcome!
 
 ### Priority Areas:
 1. Hugging Face LLM integration
