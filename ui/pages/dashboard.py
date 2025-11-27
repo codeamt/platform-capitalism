@@ -1,3 +1,4 @@
+import json
 from fasthtml.common import Div, H1, H2, H3, P, Button, Span, Progress, Li, A, Ul, Canvas, Script
 from monsterui.all import Slider, Container, TabContainer, Card, CardBody
 from ui.components import (
@@ -156,68 +157,166 @@ def _status_bar(tick_count, summary, agents):
     )
 
 def _health_trend_only(history):
-    """Display agent distribution pie chart and arousal trend."""
+    """Display system health gauge, agent trait distributions, and wellbeing trends."""
     agents = GLOBAL_ENVIRONMENT.agents
     
-    # Count agents by state
-    state_counts = {}
-    for agent in agents:
-        state = agent.profile.current_state.name
-        state_counts[state] = state_counts.get(state, 0) + 1
+    # Get current and previous health scores
+    health_scores = history.get("health_score", [])
+    current_health = health_scores[-1] if health_scores else 0.5
+    previous_health = health_scores[-2] if len(health_scores) > 1 else None
     
-    # Prepare data for pie chart
-    state_labels = list(state_counts.keys())
-    state_values = list(state_counts.values())
-    
-    # Color mapping for states
-    state_colors = {
-        "OPTIMIZER": "rgb(34, 197, 94)",
-        "HUSTLER": "rgb(234, 179, 8)",
-        "TRUE_BELIEVER": "rgb(59, 130, 246)",
-        "BURNED_OUT": "rgb(239, 68, 68)",
-        "ADDICTED": "rgb(168, 85, 247)",
-        "RESILIENT": "rgb(16, 185, 129)"
+    # Collect agent trait distributions (initialization values)
+    trait_data = {
+        "Burnout": [agent.profile.burnout for agent in agents],
+        "Addiction": [agent.profile.addiction_drive for agent in agents],
+        "Resilience": [agent.profile.emotional_resilience for agent in agents],
+        "Arousal": [agent.profile.arousal_level for agent in agents]
     }
-    colors = [state_colors.get(s, "rgb(107, 114, 128)") for s in state_labels]
     
     if not history.get("ticks"):
-        return Card(
-            CardBody(
-                H2("🎯 Agent Distribution", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
-                Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
-                Script(f"""
-                    initAgentDistributionPie('agentDistributionPie', {state_labels}, {state_values}, {colors});
-                """)
+        return Div(
+            # System Health Gauge
+            Card(
+                CardBody(
+                    H2("💚 System Health Score", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
+                    P("Overall creator wellbeing metric (0-100)", cls="text-xs sm:text-sm text-gray-400 mb-4"),
+                    Canvas(id="systemHealthGauge", style="height: 200px; max-height: 200px;"),
+                    Script(f"""
+                        initSystemHealthGauge('systemHealthGauge', {current_health}, {previous_health if previous_health else 'null'});
+                    """)
+                ),
+                cls="bg-gray-800 border-gray-700 mb-6"
             ),
-            cls="bg-gray-800 border-gray-700"
+            # Agent Trait Distributions
+            Card(
+                CardBody(
+                    H2("📊 Agent Trait Distributions", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
+                    P("Distribution of randomized initialization values across agents", cls="text-xs sm:text-sm text-gray-400 mb-4"),
+                    Canvas(id="agentTraitBoxPlots", style="height: 300px; max-height: 300px;"),
+                    Script(f"""
+                        initAgentTraitBoxPlots('agentTraitBoxPlots', {json.dumps(trait_data)});
+                    """)
+                ),
+                cls="bg-gray-800 border-gray-700"
+            )
         )
     
-    ticks = history.get("ticks", [])
-    arousal = history.get("avg_arousal", [])
+    # Calculate reward characteristics
+    all_rewards = []
+    for agent in agents:
+        if agent.history:
+            all_rewards.extend([h.get("final_reward", 0) for h in agent.history])
+    
+    avg_reward = sum(all_rewards) / len(all_rewards) if all_rewards else 0
+    variance = sum((r - avg_reward) ** 2 for r in all_rewards) / len(all_rewards) if all_rewards else 0
+    predictability = 1 - min(variance, 1)  # Simple predictability metric
+    
+    # Calculate state transitions
+    state_transitions = {}
+    for agent in agents:
+        if len(agent.history) > 1:
+            for i in range(len(agent.history) - 1):
+                from_state = agent.history[i].get("state", "UNKNOWN")
+                to_state = agent.history[i + 1].get("state", "UNKNOWN")
+                if from_state != to_state:
+                    key = f"{from_state}->{to_state}"
+                    state_transitions[key] = state_transitions.get(key, 0) + 1
+    
+    # Calculate correlations between metrics
+    burnout_vals = history.get("avg_burnout", [])
+    addiction_vals = history.get("avg_addiction", [])
+    resilience_vals = history.get("avg_resilience", [])
+    arousal_vals = history.get("avg_arousal", [])
+    
+    def calculate_correlation(x, y):
+        if len(x) < 2 or len(y) < 2:
+            return 0
+        n = min(len(x), len(y))
+        x, y = x[:n], y[:n]
+        mean_x = sum(x) / n
+        mean_y = sum(y) / n
+        numerator = sum((x[i] - mean_x) * (y[i] - mean_y) for i in range(n))
+        denom_x = sum((x[i] - mean_x) ** 2 for i in range(n)) ** 0.5
+        denom_y = sum((y[i] - mean_y) ** 2 for i in range(n)) ** 0.5
+        return numerator / (denom_x * denom_y) if denom_x and denom_y else 0
+    
+    correlations = {
+        "Burnout_Addiction": calculate_correlation(burnout_vals, addiction_vals),
+        "Burnout_Resilience": calculate_correlation(burnout_vals, resilience_vals),
+        "Burnout_Arousal": calculate_correlation(burnout_vals, arousal_vals),
+        "Addiction_Resilience": calculate_correlation(addiction_vals, resilience_vals),
+        "Addiction_Arousal": calculate_correlation(addiction_vals, arousal_vals),
+        "Resilience_Arousal": calculate_correlation(resilience_vals, arousal_vals)
+    }
     
     return Div(
-        # Pie chart for agent distribution
+        # System Health Gauge
         Card(
             CardBody(
-                H2("🎯 Agent Distribution", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
-                Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
+                H2("💚 System Health Score", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
+                P("Overall creator wellbeing metric (0-100)", cls="text-xs sm:text-sm text-gray-400 mb-4"),
+                Canvas(id="systemHealthGauge", style="height: 200px; max-height: 200px;"),
                 Script(f"""
-                    initAgentDistributionPie('agentDistributionPie', {state_labels}, {state_values}, {colors});
+                    initSystemHealthGauge('systemHealthGauge', {current_health}, {previous_health if previous_health else 'null'});
                 """)
             ),
             cls="bg-gray-800 border-gray-700 mb-6"
         ),
         
-        # Arousal trend line chart
+        # Agent Trait Distributions (Box Plots)
         Card(
             CardBody(
-                H2("📈 Arousal Trend (Last 20 Ticks)", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
-                P("Track creator arousal/engagement over time", cls="text-xs sm:text-sm text-gray-400 mb-4"),
-                Canvas(id="arousalTrendChart", style="height: 300px; max-height: 300px;"),
+                H2("📊 Agent Trait Distributions", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
+                P("Distribution of current trait values across agents (mean ± std)", cls="text-xs sm:text-sm text-gray-400 mb-4"),
+                Canvas(id="agentTraitBoxPlots", style="height: 300px; max-height: 300px;"),
                 Script(f"""
-                    initArousalTrendChart('arousalTrendChart', {ticks}, {arousal});
+                    initAgentTraitBoxPlots('agentTraitBoxPlots', {json.dumps(trait_data)});
                 """)
             ),
-            cls="bg-gray-800 border-gray-700"
+            cls="bg-gray-800 border-gray-700 mb-6"
+        ),
+        
+        # 3-column grid for detailed analytics
+        Div(
+            # Reward Characteristics
+            Card(
+                CardBody(
+                    H3("🎁 Reward Distribution", cls="text-lg font-bold text-gray-100 mb-2"),
+                    P("Histogram of reward values", cls="text-xs text-gray-400 mb-3"),
+                    Canvas(id="rewardCharacteristics", style="height: 250px; max-height: 250px;"),
+                    Script(f"""
+                        initRewardCharacteristics('rewardCharacteristics', {json.dumps(all_rewards)}, {avg_reward}, {variance}, {predictability});
+                    """)
+                ),
+                cls="bg-gray-800 border-gray-700"
+            ),
+            
+            # State Transitions
+            Card(
+                CardBody(
+                    H3("🔄 State Transitions", cls="text-lg font-bold text-gray-100 mb-2"),
+                    P("Most common state changes", cls="text-xs text-gray-400 mb-3"),
+                    Canvas(id="stateTransitions", style="height: 250px; max-height: 250px;"),
+                    Script(f"""
+                        initStateTransitionFlow('stateTransitions', {json.dumps(state_transitions)});
+                    """)
+                ),
+                cls="bg-gray-800 border-gray-700"
+            ),
+            
+            # Correlation Heatmap
+            Card(
+                CardBody(
+                    H3("🔗 Metric Correlations", cls="text-lg font-bold text-gray-100 mb-2"),
+                    P("Relationships between traits", cls="text-xs text-gray-400 mb-3"),
+                    Canvas(id="correlationHeatmap", style="height: 250px; max-height: 250px;"),
+                    Script(f"""
+                        initCorrelationHeatmap('correlationHeatmap', {json.dumps(correlations)});
+                    """)
+                ),
+                cls="bg-gray-800 border-gray-700"
+            ),
+            
+            cls="grid grid-cols-1 lg:grid-cols-3 gap-6"
         )
     )
