@@ -1,4 +1,4 @@
-from fasthtml.common import Div, A, Nav, Script
+from fasthtml.common import Div, A, Nav, Script, Button
 
 def nav_bar(current_path="/"):
     """Navigation bar for the application."""
@@ -9,32 +9,59 @@ def nav_bar(current_path="/"):
                 A(
                     "🏛️ Platform Capitalism",
                     href="/",
-                    cls="text-xl font-bold text-gray-100 hover:text-white"
+                    cls="text-lg sm:text-xl font-bold text-gray-100 hover:text-white"
                 ),
                 cls="flex-1"
             ),
             
-            # Navigation Links
+            # Mobile menu button
+            Button(
+                "☰",
+                cls="md:hidden px-3 py-2 text-gray-300 hover:text-white text-2xl",
+                onclick="document.getElementById('mobile-nav').classList.toggle('hidden')"
+            ),
+            
+            # Desktop Navigation Links
             Div(
                 A(
                     "🏠 Dashboard",
                     href="/",
-                    cls=f"px-4 py-2 rounded-lg font-medium transition {'bg-blue-600 text-white' if current_path == '/' else 'text-gray-300 hover:bg-gray-700'}"
+                    cls=f"px-3 py-2 rounded-lg font-medium transition text-sm {'bg-blue-600 text-white' if current_path == '/' else 'text-gray-300 hover:bg-gray-700'}"
                 ),
                 A(
                     "⚙️ Governance Lab",
                     href="/governance-lab",
-                    cls=f"px-4 py-2 rounded-lg font-medium transition {'bg-blue-600 text-white' if current_path == '/governance-lab' else 'text-gray-300 hover:bg-gray-700'}"
+                    cls=f"px-3 py-2 rounded-lg font-medium transition text-sm {'bg-blue-600 text-white' if current_path == '/governance-lab' else 'text-gray-300 hover:bg-gray-700'}"
                 ),
                 A(
                     "📊 Export Data",
                     href="/export/json",
-                    cls="px-4 py-2 rounded-lg font-medium text-gray-300 hover:bg-gray-700 transition"
+                    cls="px-3 py-2 rounded-lg font-medium text-gray-300 hover:bg-gray-700 transition text-sm"
                 ),
-                cls="flex gap-2"
+                cls="hidden md:flex gap-2"
             ),
             
-            cls="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
+            cls="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between"
+        ),
+        # Mobile Navigation Menu (hidden by default)
+        Div(
+            A(
+                "🏠 Dashboard",
+                href="/",
+                cls=f"block px-4 py-3 font-medium transition {'bg-blue-600 text-white' if current_path == '/' else 'text-gray-300 hover:bg-gray-700'}"
+            ),
+            A(
+                "⚙️ Governance Lab",
+                href="/governance-lab",
+                cls=f"block px-4 py-3 font-medium transition {'bg-blue-600 text-white' if current_path == '/governance-lab' else 'text-gray-300 hover:bg-gray-700'}"
+            ),
+            A(
+                "📊 Export Data",
+                href="/export/json",
+                cls="block px-4 py-3 font-medium text-gray-300 hover:bg-gray-700 transition"
+            ),
+            id="mobile-nav",
+            cls="md:hidden hidden bg-gray-800 border-t border-gray-700"
         ),
         cls="bg-gray-900 border-b border-gray-700 sticky top-0 z-50 shadow-lg"
     )

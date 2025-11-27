@@ -26,24 +26,24 @@ def agent_card(agent):
         CardBody(
             # Header with status
             Div(
-                H2(f"Agent {p.id}", cls="text-xl font-bold inline text-gray-100"),
-                Span(status_text, cls=f"ml-2 text-sm font-semibold {status_color}"),
-                cls="mb-3"
+                H2(f"Agent {p.id}", cls="text-lg sm:text-xl font-bold inline text-gray-100"),
+                Span(status_text, cls=f"ml-2 text-xs sm:text-sm font-semibold {status_color}"),
+                cls="mb-2 sm:mb-3"
             ),
             
             # State & Strategy
             Div(
-                P(f"🎭 State: {p.current_state.name}", cls="font-medium text-gray-200"),
-                P(f"📋 Strategy: {p.strategy}", cls="text-sm text-gray-400"),
+                P(f"🎭 State: {p.current_state.name}", cls="font-medium text-gray-200 text-sm sm:text-base"),
+                P(f"📋 Strategy: {p.strategy}", cls="text-xs sm:text-sm text-gray-400"),
                 P(f"⏱️ Ticks Active: {len(agent.history)} | 📊 Total Posts: {sum(h.get('posts_generated', 0) for h in agent.history):.1f}", 
                   cls="text-xs text-gray-400 mt-1"),
                 P(
-                    Span(f"💵 Earnings: ${sum(h.get('cpm_earnings', 0) for h in agent.history):.2f}", cls="text-green-400"),
+                    Span(f"💵 Earnings: ${sum(h.get('cpm_earnings', 0) for h in agent.history):.2f}", cls="text-green-400 text-xs sm:text-sm"),
                     Span(" | ", cls="text-gray-600"),
-                    Span(f"👁️ Views: {sum(h.get('posts_generated', 0) for h in agent.history) * GLOBAL_ENVIRONMENT.policy_engine.config.avg_views_per_post:,.0f}", cls="text-blue-400"),
+                    Span(f"👁️ Views: {sum(h.get('posts_generated', 0) for h in agent.history) * GLOBAL_ENVIRONMENT.policy_engine.config.avg_views_per_post:,.0f}", cls="text-blue-400 text-xs sm:text-sm"),
                     cls="text-xs font-semibold mt-1"
                 ),
-                cls="mb-3 pb-3 border-b border-gray-700"
+                cls="mb-2 sm:mb-3 pb-2 sm:pb-3 border-b border-gray-700"
             ),
             
             # Tab Navigation
@@ -52,13 +52,13 @@ def agent_card(agent):
                     A("📊 Metrics", 
                       href="#metrics",
                       data_tab="metrics",
-                      cls="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-blue-400 cursor-pointer transition-colors")
+                      cls="block px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-400 hover:text-blue-400 cursor-pointer transition-colors")
                 ),
                 Li(
                     A("🧠 Decision Tree", 
                       href="#decision",
                       data_tab="decision",
-                      cls="block px-4 py-2 text-sm font-medium text-gray-400 hover:text-blue-400 cursor-pointer transition-colors")
+                      cls="block px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-400 hover:text-blue-400 cursor-pointer transition-colors")
                 ),
                 role="tablist",
                 cls="flex border-b border-gray-700 mb-3 -mx-2 tab-container"
@@ -67,7 +67,7 @@ def agent_card(agent):
             # Tab 1: Metrics (visible by default)
             Div(
                 # Research Metrics (Key Outcomes)
-                H3("Creator Wellbeing", cls="text-sm font-semibold text-gray-300 mb-2"),
+                H3("Creator Wellbeing", cls="text-xs sm:text-sm font-semibold text-gray-300 mb-2"),
                 Div(
                     _metric_row("Burnout", p.burnout, "🔥", danger_threshold=0.7),
                     _metric_row("Addiction", p.addiction_drive, "🎰", danger_threshold=0.7),
@@ -80,7 +80,7 @@ def agent_card(agent):
                 _agent_sparklines(agent) if len(agent.history) > 1 else None,
                 
                 # Content Traits
-                H3("Content Traits", cls="text-sm font-semibold text-gray-300 mb-2 mt-3"),
+                H3("Content Traits", cls="text-xs sm:text-sm font-semibold text-gray-300 mb-2 mt-3"),
                 Div(
                     P(f"Quality: {p.quality:.2f} | Diversity: {p.diversity:.2f} | Consistency: {p.consistency:.2f}",
                       cls="text-xs text-gray-400"),

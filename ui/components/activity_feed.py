@@ -45,19 +45,19 @@ def activity_feed():
     if not activities:
         return Card(
             CardBody(
-                H2("📋 Recent Activity", cls="text-2xl font-bold text-gray-100 mb-4"),
-                P("No activity yet. Run a tick to see creator behavior.", cls="text-gray-400 text-center py-8")
+                H2("📋 Recent Activity", cls="text-lg sm:text-2xl font-bold text-gray-100 mb-3 sm:mb-4"),
+                P("No activity yet. Run a tick to see creator behavior.", cls="text-xs sm:text-sm text-gray-400 text-center py-6 sm:py-8")
             ),
             cls="bg-gray-800 border-gray-700"
         )
     
     return Card(
         CardBody(
-            H2("📋 Recent Activity", cls="text-2xl font-bold text-gray-100 mb-4"),
-            P("Live feed of creator state transitions and behaviors", cls="text-sm text-gray-400 mb-4"),
+            H2("📋 Recent Activity", cls="text-lg sm:text-2xl font-bold text-gray-100 mb-3 sm:mb-4"),
+            P("Live feed of creator state transitions and behaviors", cls="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4"),
             Div(
                 *[_activity_item(a) for a in activities],
-                cls="space-y-3 overflow-y-auto",
+                cls="space-y-2 sm:space-y-3 overflow-y-auto",
                 style="max-height: 600px;"
             )
         ),
@@ -74,30 +74,30 @@ def _activity_item(activity):
         Div(
             # Left: Avatar/Icon
             Div(
-                Span(state_emoji, cls="text-2xl"),
-                cls="flex-shrink-0 w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center"
+                Span(state_emoji, cls="text-xl sm:text-2xl"),
+                cls="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 flex items-center justify-center"
             ),
             
             # Middle: Activity text
             Div(
                 P(
-                    Span(activity["agent_name"], cls="font-semibold text-gray-200"),
-                    Span(" " + activity["action"], cls="text-gray-400"),
-                    cls="text-sm"
+                    Span(activity["agent_name"], cls="font-semibold text-gray-200 text-xs sm:text-sm"),
+                    Span(" " + activity["action"], cls="text-gray-400 text-xs sm:text-sm"),
+                    cls="text-xs sm:text-sm"
                 ),
                 P(
-                    Span(state, cls=f"text-xs px-2 py-0.5 rounded-full {state_color}"),
+                    Span(state, cls=f"text-xs px-1.5 sm:px-2 py-0.5 rounded-full {state_color}"),
                     cls="mt-1"
                 ),
-                cls="flex-1 ml-3"
+                cls="flex-1 ml-2 sm:ml-3"
             ),
             
             # Right: Time
-            P(activity["time"], cls="text-xs text-gray-500 flex-shrink-0"),
+            P(activity["time"], cls="text-xs text-gray-500 flex-shrink-0 hidden sm:block"),
             
             cls="flex items-start"
         ),
-        cls="p-3 bg-gray-750 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
+        cls="p-2 sm:p-3 bg-gray-750 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
     )
 
 def _generate_activity_description(state, burnout, reward):

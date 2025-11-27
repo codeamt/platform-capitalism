@@ -75,8 +75,8 @@ def scenario_selector(current_scenario="Creator-First Platform", source="dashboa
     
     return Card(
         CardBody(
-            H2("🎬 Scenario Selector", cls="text-xl font-bold mb-3 text-gray-100"),
-            P("Compare exploitative vs. sustainable platform governance", cls="text-sm text-gray-400 mb-4"),
+            H2("🎬 Scenario Selector", cls="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-gray-100"),
+            P("Compare exploitative vs. sustainable platform governance", cls="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4"),
             
             Form(
                 # Hidden field to track source page
@@ -113,8 +113,8 @@ def scenario_selector(current_scenario="Creator-First Platform", source="dashboa
                 # Show current scenario description
                 Div(
                     P("📝 Current Scenario:", cls="text-xs font-semibold text-gray-400 mb-1"),
-                    P(current_desc, cls="text-sm text-gray-300 italic p-3 bg-gray-700 rounded"),
-                    cls="mt-4"
+                    P(current_desc, cls="text-xs sm:text-sm text-gray-300 italic p-2 sm:p-3 bg-gray-700 rounded"),
+                    cls="mt-3 sm:mt-4"
                 ) if current_scenario else None
             )
         ),

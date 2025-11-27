@@ -28,29 +28,29 @@ def DashboardPage():
         # Hero Section
         Div(
             Div(
-                H1("🎯 Quick Start", cls="text-3xl font-bold text-gray-100"),
+                H1("🎯 Quick Start", cls="text-2xl sm:text-3xl font-bold text-gray-100"),
                 P("1. Select a scenario below to compare platform governance strategies",
-                  cls="text-sm text-gray-400 mt-2"),
+                  cls="text-xs sm:text-sm text-gray-400 mt-2"),
                 P("2. Click ▶️ Run Tick to advance the simulation and watch creator wellbeing metrics",
-                  cls="text-sm text-gray-400"),
+                  cls="text-xs sm:text-sm text-gray-400"),
                 P("3. Compare differential (predictable) vs intermittent (exploitative) reinforcement patterns",
-                  cls="text-sm text-gray-400"),
-                cls="flex-1"
+                  cls="text-xs sm:text-sm text-gray-400"),
+                cls="flex-1 mb-4 sm:mb-0"
             ),
             Div(
                 Button("▶️ Run Tick",
                        hx_post="/api/tick",
                        hx_target="#main-content",
                        hx_swap="outerHTML",
-                       cls="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold mr-2"),
+                       cls="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm sm:text-base w-full sm:w-auto mb-2 sm:mb-0 sm:mr-2"),
                 Button("🔄 Reset",
                        hx_post="/api/reset",
                        hx_target="#main-content",
                        hx_swap="outerHTML",
-                       cls="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold"),
-                cls="flex gap-2"
+                       cls="px-3 sm:px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold text-sm sm:text-base w-full sm:w-auto"),
+                cls="flex flex-col sm:flex-row gap-2"
             ),
-            cls="flex justify-between items-start mb-6 pb-6 border-b border-gray-700"
+            cls="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-700"
         ),
         
         # Status Bar (full width)
@@ -59,27 +59,27 @@ def DashboardPage():
         # Tabbed Content Container
         Container(
             TabContainer(
-                Li(A("🎮 Simulation", href='#', cls='uk-active')),
-                Li(A("👥 Agents", href='#')),
-                Li(A("📊 System Health", href='#')),
+                Li(A("🎮 Simulation", href='#', cls='uk-active text-xs sm:text-base')),
+                Li(A("👥 Agents", href='#', cls='text-xs sm:text-base')),
+                Li(A("📊 Health", href='#', cls='text-xs sm:text-base')),
                 uk_switcher='connect: #dashboard-tabs; animation: uk-animation-fade',
                 alt=True
             ),
             Ul(id="dashboard-tabs", cls="uk-switcher")(
-                # Tab 1: Simulation (Selector + Activity Feed in 3-column grid)
+                # Tab 1: Simulation (Selector + Activity Feed in responsive grid)
                 Li(
                     Div(
                         scenario_selector(GLOBAL_ENVIRONMENT.current_scenario or "Creator-First Platform", source="dashboard"),
                         activity_feed(),
-                        cls="grid grid-cols-1 lg:grid-cols-3 gap-6",
-                        style="grid-template-columns: 1fr 2fr;"
+                        cls="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6",
+                        style="grid-template-columns: 1fr; lg:grid-template-columns: 1fr 2fr;"
                     )
                 ),
                 
                 # Tab 2: Agents (Just carousel, full width)
                 Li(
                     Div(
-                        H2("👥 Individual Creators", cls="text-2xl font-bold mb-4 text-gray-100"),
+                        H2("👥 Individual Creators", cls="text-xl sm:text-2xl font-bold mb-4 text-gray-100"),
                         Slider(
                             *[agent_card(a) for a in agents] if agents else [P("No agents. Load a scenario to begin.", cls="text-gray-400 text-center py-8")],
                             items_cls='gap-4',
@@ -96,7 +96,7 @@ def DashboardPage():
             cls="mt-6"
         ),
         
-        cls="max-w-7xl mx-auto p-6",
+        cls="max-w-7xl mx-auto p-3 sm:p-6",
         id="main-content"
     )
     
@@ -131,28 +131,28 @@ def _status_bar(tick_count, summary, agents):
     
     return Div(
         Div(
-            # Left: Status indicator
+            # Top: Status indicator and day
             Div(
-                Span(status_text, cls=f"px-3 py-1 rounded-full text-sm font-semibold text-white {status_color}"),
-                Span(f"Day {tick_count}", cls="text-sm font-semibold text-gray-300 ml-4"),
-                cls="flex items-center"
+                Span(status_text, cls=f"px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold text-white {status_color}"),
+                Span(f"Day {tick_count}", cls="text-xs sm:text-sm font-semibold text-gray-300 ml-2 sm:ml-4"),
+                cls="flex items-center mb-3 sm:mb-0"
             ),
             
-            # Right: All metrics
+            # Bottom: All metrics (wrap on mobile)
             Div(
-                Span(f"👥 {num_agents} Agents", cls="text-sm text-gray-400 mr-4"),
-                Span(f"💰 Platform Earnings: ${total_earnings:.2f}", cls="text-sm font-semibold text-green-400 mr-4"),
-                Span(f"🔥 Burnout: {avg_burnout:.2f}", cls="text-sm text-gray-400 mr-4"),
-                Span(f"🎮 Addiction: {avg_addiction:.2f}", cls="text-sm text-gray-400 mr-4"),
-                Span(f"🛡️ Resilience: {avg_resilience:.2f}", cls="text-sm text-gray-400 mr-4"),
-                Span(f"📈 Burnout Rate: {burnout_rate:.2f}", cls="text-sm text-gray-400 mr-4"),
-                Span(f"Mode: {mode.capitalize()}", cls="text-sm text-gray-400"),
-                cls="flex items-center"
+                Span(f"👥 {num_agents}", cls="text-xs sm:text-sm text-gray-400 mr-2 sm:mr-4"),
+                Span(f"💰 ${total_earnings:.2f}", cls="text-xs sm:text-sm font-semibold text-green-400 mr-2 sm:mr-4"),
+                Span(f"🔥 {avg_burnout:.2f}", cls="text-xs sm:text-sm text-gray-400 mr-2 sm:mr-4"),
+                Span(f"🎮 {avg_addiction:.2f}", cls="text-xs sm:text-sm text-gray-400 mr-2 sm:mr-4"),
+                Span(f"🛡️ {avg_resilience:.2f}", cls="text-xs sm:text-sm text-gray-400 mr-2 sm:mr-4"),
+                Span(f"📈 {burnout_rate:.2f}", cls="text-xs sm:text-sm text-gray-400 mr-2 sm:mr-4 hidden sm:inline"),
+                Span(f"{mode.capitalize()}", cls="text-xs sm:text-sm text-gray-400 hidden sm:inline"),
+                cls="flex items-center flex-wrap gap-y-2"
             ),
             
-            cls="flex justify-between items-center"
+            cls="flex flex-col sm:flex-row sm:justify-between sm:items-center"
         ),
-        cls="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6"
+        cls="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6"
     )
 
 def _health_trend_only(history):
@@ -183,7 +183,7 @@ def _health_trend_only(history):
     if not history.get("ticks"):
         return Card(
             CardBody(
-                H2("🎯 Agent Distribution", cls="text-2xl font-bold text-gray-100 mb-4"),
+                H2("🎯 Agent Distribution", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
                 Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
                 Script(f"""
                     setTimeout(function() {{
@@ -235,7 +235,7 @@ def _health_trend_only(history):
         # Pie chart for agent distribution
         Card(
             CardBody(
-                H2("🎯 Agent Distribution", cls="text-2xl font-bold text-gray-100 mb-4"),
+                H2("🎯 Agent Distribution", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
                 Canvas(id="agentDistributionPie", style="height: 300px; max-height: 300px;"),
                 Script(f"""
                     setTimeout(function() {{
@@ -283,8 +283,8 @@ def _health_trend_only(history):
         # Arousal trend line chart
         Card(
             CardBody(
-                H2("📈 Arousal Trend (Last 20 Ticks)", cls="text-2xl font-bold text-gray-100 mb-4"),
-                P("Track creator arousal/engagement over time", cls="text-sm text-gray-400 mb-4"),
+                H2("📈 Arousal Trend (Last 20 Ticks)", cls="text-xl sm:text-2xl font-bold text-gray-100 mb-4"),
+                P("Track creator arousal/engagement over time", cls="text-xs sm:text-sm text-gray-400 mb-4"),
                 Canvas(id="arousalTrendChart", style="height: 300px; max-height: 300px;"),
                 Script(f"""
                     setTimeout(function() {{
