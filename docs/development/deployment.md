@@ -23,4 +23,4 @@ make quick-research
 | **Vercel** | Demos/Sharing | Free | 2 min | ❌ |
 | **Lightsail** | Research | $20/mo | 10 min | ✅ |
 
-See the [Deployment Guide](../../deploy/DEPLOYMENT_GUIDE.md) for detailed instructions.
+See the [Deployment Guide](../../guides/DEPLOYMENT_GUIDE.md) for detailed instructions.
