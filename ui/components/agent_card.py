@@ -114,34 +114,75 @@ def agent_card(agent):
     )
 
 def _metric_row(label, value, emoji, danger_threshold=0.7, inverse=False):
-    """Helper to display a metric with color coding."""
-    # Enhanced semantic color coding with better contrast
+    """Helper to display a metric with color coding.
+    
+    Colors match the System Health chart:
+    - Burnout: Red (unhealthy) → Purple (healthy)
+    - Addiction: Red (unhealthy) → Purple (healthy)
+    - Resilience: Red (low) → Green (high)
+    - Arousal: Red (high) → Blue (healthy)
+    """
+    # Map metrics to their healthy colors (matching System Health chart)
+    metric_colors = {
+        "Burnout": {"healthy": "purple", "warning": "amber", "danger": "red"},
+        "Addiction": {"healthy": "purple", "warning": "amber", "danger": "red"},
+        "Resilience": {"healthy": "green", "warning": "amber", "danger": "red"},
+        "Arousal": {"healthy": "blue", "warning": "amber", "danger": "red"}
+    }
+    
+    # Get color scheme for this metric (default to green for unknown metrics)
+    color_scheme = metric_colors.get(label, {"healthy": "green", "warning": "amber", "danger": "red"})
+    
+    # Color mapping
+    color_map = {
+        "purple": {
+            "text": "text-purple-400",
+            "bar": "bg-gradient-to-r from-purple-500 to-purple-600",
+            "glow": "shadow-purple-500/20"
+        },
+        "green": {
+            "text": "text-green-400",
+            "bar": "bg-gradient-to-r from-green-500 to-green-600",
+            "glow": "shadow-green-500/20"
+        },
+        "blue": {
+            "text": "text-blue-400",
+            "bar": "bg-gradient-to-r from-blue-500 to-blue-600",
+            "glow": "shadow-blue-500/20"
+        },
+        "amber": {
+            "text": "text-amber-400",
+            "bar": "bg-gradient-to-r from-amber-500 to-yellow-500",
+            "glow": "shadow-amber-500/20"
+        },
+        "red": {
+            "text": "text-red-400",
+            "bar": "bg-gradient-to-r from-red-500 to-red-600",
+            "glow": "shadow-red-500/30 shadow-lg"
+        }
+    }
+    
+    # Determine color based on value and whether higher is better
     if inverse:  # Higher is better (e.g., resilience)
         if value > 0.6:
-            text_color = "text-emerald-400"
-            bar_color = "bg-gradient-to-r from-emerald-500 to-emerald-600"
-            glow = "shadow-emerald-500/20"
+            color_key = color_scheme["healthy"]
         elif value > 0.4:
-            text_color = "text-amber-400"
-            bar_color = "bg-gradient-to-r from-amber-500 to-yellow-500"
-            glow = "shadow-amber-500/20"
+            color_key = color_scheme["warning"]
         else:
-            text_color = "text-red-400"
-            bar_color = "bg-gradient-to-r from-red-500 to-red-600"
-            glow = "shadow-red-500/30 shadow-lg"
-    else:  # Lower is better (e.g., burnout, addiction)
+            color_key = color_scheme["danger"]
+    else:  # Lower is better (e.g., burnout, addiction, arousal)
         if value > danger_threshold:
-            text_color = "text-red-400"
-            bar_color = "bg-gradient-to-r from-red-500 to-red-600"
-            glow = "shadow-red-500/30 shadow-lg"
+            color_key = color_scheme["danger"]
         elif value > 0.4:
-            text_color = "text-amber-400"
-            bar_color = "bg-gradient-to-r from-amber-500 to-yellow-500"
-            glow = "shadow-amber-500/20"
+            color_key = color_scheme["warning"]
         else:
-            text_color = "text-emerald-400"
-            bar_color = "bg-gradient-to-r from-emerald-500 to-emerald-600"
-            glow = "shadow-emerald-500/20"
+            color_key = color_scheme["healthy"]
+    
+    # Get colors from map
+    colors = color_map[color_key]
+    text_color = colors["text"]
+    bar_color = colors["bar"]
+    glow = colors["glow"]
     
     # Progress bar width
     bar_width = f"{int(value * 100)}%"

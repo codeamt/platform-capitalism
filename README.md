@@ -377,52 +377,60 @@ platform-capitalism/
 - State persistence bonus (hysteresis)
 - Viral mechanics and reward variance
 - Platform algorithm variability
+- Optional text content generation using Hugging Face models
 
-#### 🚧 Future Integrations
+   **Hugging Face Integration Features:**
+   - Generate realistic social media posts based on agent traits
+   - Automatic fallback to template-based generation if API unavailable
+   - Content quality and diversity driven by agent personality
+   - Graceful degradation - simulation works without HF API key
 
-- Hugging Face LLM integration: Generate actual text content
+   **Setup (Optional):**
 
-   > Two stub methods are available in `simulation/agents/agent.py` for future LLM integration:
-   
-   **1. `_build_markov_corpus()`**
-   Builds a statistical language model from agent's historical content.
-   
-   **2. `generate_content_prompt_hf(temperature=0.7, max_tokens=100)`**
-   Generates prompts for Hugging Face Inference API based on agent traits.
-   
-   **Example:**
-   ```python
-   agent = agents[0]
-   prompt_config = agent.generate_content_prompt_hf(temperature=0.7)
-   
-   # Returns:
-   {
-       "model": "gpt2",
-       "prompt": "Create a quick, engaging social media post about trending topics.",
-       "temperature": 0.65,  # Adjusted by agent.diversity
-       "max_tokens": 100,
-       "quality_target": 0.8,
-       "diversity_target": 0.6
-   }
-   ```
-
-   To run stub: 
-   
    1. **Install dependencies:**
       ```bash
-      uv add huggingface-hub transformers
+      uv sync  # Installs huggingface-hub automatically
       ```
-   
-   2. **Set API key:**
+
+   2. **Set API key (optional):**
       ```bash
       export HUGGINGFACE_API_KEY="your_key_here"
       ```
-   
-   3. **Implement `ContentGenerator`** (see stub methods for interface)
-   
-   4. **Update `Environment.tick()`** to call content generation
-   
-   See stub method docstrings in `simulation/agents/agent.py` for full implementation details.
+      Get your key from: https://huggingface.co/settings/tokens
+
+   3. **Enable text generation:**
+      ```python
+      # In your code or API endpoint
+      GLOBAL_ENVIRONMENT.tick(generate_text_content=True)
+      ```
+
+   **Usage Example:**
+   ```python
+   from simulation.content_generator import generate_agent_content
+
+   # Generate content for a specific agent
+   agent = agents[0]
+   result = generate_agent_content(agent, temperature=0.7, max_tokens=100)
+
+   # Returns:
+   {
+      "content": "Just posted new content! Check it out... 🚀",
+      "method": "huggingface",  # or "template_fallback"
+      "model": "gpt2",
+      "word_count": 15,
+      "quality_score": 0.8,
+      "agent_id": "agent_1",
+      "agent_state": "OPTIMIZER",
+      "agent_strategy": "consistent_quality"
+   }
+   ```
+
+   **Implementation Details:**
+   - Content generator: `simulation/content_generator.py`
+   - Agent prompt generation: `simulation/agents/agent.py::generate_content_prompt_hf()`
+   - Integration point: `simulation/environment.py::tick(generate_text_content=True)`
+
+   **Note:** The simulation works perfectly without HF API key - it uses intelligent template-based fallback generation.
 
 **Other Features in Development:**
 - Markov chain fallback: Statistical content generation
@@ -433,11 +441,10 @@ platform-capitalism/
 
 
 ### Priority Areas:
-1. Hugging Face LLM integration
-2. Advanced analytics (correlation, clustering)
-3. Multi-platform support (TikTok, Instagram, YouTube)
-4. Mobile-responsive UI
-5. API endpoints for external access
+1. Advanced analytics (correlation, clustering)
+2. Multi-platform support (TikTok, Instagram, YouTube)
+3. Mobile-responsive UI
+4. API endpoints for external access
 
 ### Development Workflow
 

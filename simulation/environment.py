@@ -3,6 +3,13 @@ from simulation.policy_engine import PolicyEngine, PolicyConfig
 from simulation.policy_engine.config import OPTIMAL_POLICY_CONFIG
 from simulation.agents.agent import Agent
 
+# Optional: Import content generator (gracefully handles missing dependencies)
+try:
+    from simulation.content_generator import generate_agent_content
+    CONTENT_GENERATION_ENABLED = True
+except ImportError:
+    CONTENT_GENERATION_ENABLED = False
+
 # Utility: compute platform volatility
 def compute_volatility():
     return random.random() * 0.5
@@ -59,15 +66,31 @@ class Environment:
     def volatility(self):
         return compute_volatility()
 
-    def tick(self):
-        """Run a single simulation tick: generate content, apply rewards, update state, record telemetry."""
+    def tick(self, generate_text_content=False):
+        """Run a single simulation tick: generate content, apply rewards, update state, record telemetry.
+        
+        Args:
+            generate_text_content: If True and HF is available, generate actual text content
+        """
         self.last_tick_explanations = []
         self.tick_count += 1
         
-        # Step 1: Agent Action - Content Generation (NEW)
+        # Step 1: Agent Action - Content Generation
         # Agents decide how much content to post based on strategy and previous rewards
         for agent in self.agents:
-            agent.simulate_content_generation()
+            posts_count = agent.simulate_content_generation()
+            
+            # Optional: Generate actual text content using HF
+            if generate_text_content and CONTENT_GENERATION_ENABLED:
+                try:
+                    content_result = generate_agent_content(agent)
+                    # Store generated content in agent's current tick data
+                    if not hasattr(agent, '_current_tick_content'):
+                        agent._current_tick_content = []
+                    agent._current_tick_content.append(content_result)
+                except Exception as e:
+                    # Silently fail - content generation is optional
+                    pass
         
         # Step 2: Policy Application & Reward Calculation
         for agent in self.agents:
