@@ -37,6 +37,7 @@ Open `http://localhost:5001` in your browser.
 ## Architecture Overview
 
 ```mermaid
+%%{init: {'theme':'default','themeVariables': {'primaryColor':'#61DAFB','primaryTextColor':'#000','primaryBorderColor':'#333','lineColor':'#333','secondaryColor':'#f9f9f9','tertiaryColor':'#fff','fontFamily':'arial','nodeTextColor':'#000','textColor':'#000'}}}%%
 graph TD
     A[User Interface] --> B[FastHTML Routes]
     B --> C[Environment]
@@ -48,14 +49,14 @@ graph TD
     D --> H[Reward Calculation]
     H --> E
     
-    style A fill:#61DAFB,stroke:#333,stroke-width:2px,color:#000
-    style B fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
-    style C fill:#90EE90,stroke:#333,stroke-width:2px,color:#000
-    style D fill:#FFB6C1,stroke:#333,stroke-width:2px,color:#000
-    style E fill:#DDA0DD,stroke:#333,stroke-width:2px,color:#000
-    style F fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
-    style G fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
-    style H fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
+    style A fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style B fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style C fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style D fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style E fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style F fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style G fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style H fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
 ```
 
 ## Research Foundation
@@ -109,6 +110,7 @@ MIT License - see [LICENSE](https://github.com/codeamt/platform-capitalism/blob/
 
 ## Acknowledgments
 
-- Dr. Ashley Mears (Principal Investigator) - University of Amsterdam
+- Dr. Ashley Mears - University of Amsterdam (Primary Research)
 - FastHTML framework
 - MonsterUI component library
+- Claude Sonnet 4.5 and Gemini 3 for Development Support 

@@ -43,10 +43,18 @@ graph TB
     D --> L
     H --> J
     
-    style A fill:#61DAFB
-    style D fill:#90EE90
-    style E fill:#FFB6C1
-    style G fill:#DDA0DD
+    style A fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style B fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style C fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style D fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style E fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style F fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style G fill:#1a1a1a,stroke:#888,stroke-width:3px,color:#fff
+    style H fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style I fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style J fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style K fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
+    style L fill:#4A148C,stroke:#888,stroke-width:3px,color:#fff
 ```
 
 ## Core Components

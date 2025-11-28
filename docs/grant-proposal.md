@@ -14,4 +14,4 @@ Full grant proposal template including:
 - Timeline
 - Expected outcomes
 
-For now, see [EXAMPLE_GRANT_PROPOSAL.md](../EXAMPLE_GRANT_PROPOSAL.md) in the repository root.
+For now, see [EXAMPLE_GRANT_PROPOSAL.md](../research_papers/EXAMPLE_GRANT_PROPOSAL.md) in the research papers directory.

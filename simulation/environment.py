@@ -66,7 +66,7 @@ class Environment:
     def volatility(self):
         return compute_volatility()
 
-    def tick(self, generate_text_content=False):
+    def tick(self, generate_text_content=True):
         """Run a single simulation tick: generate content, apply rewards, update state, record telemetry.
         
         Args:

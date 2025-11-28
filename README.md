@@ -10,7 +10,7 @@
 
 This simulation environment models creator labor within platform economies using a state-machine framework where agents transition between four archetypal creative states—Optimizer, Hustler, True Believer, and Burnout—based on differential and intermittent reinforcement schedules. Agents generate content dynamically (3-10 posts/day) with earnings calculated via realistic CPM-based economics ($2-$40 per 1,000 views), reflecting empirical data from content farm research. A policy engine implements variable reinforcement regimes that shape creator behavior through rewards for quality, consistency, diversity, and volume, while tracking both monetary earnings and psychological metrics (view counts, addiction, burnout, resilience). The research dashboard provides real-time visibility into algorithmic decision-making and creator wellbeing through interactive visualizations, decision tree transparency tools, scenario comparison, and policy impact previews. This system enables researchers to experimentally investigate how platform monetization models and reinforcement schedules interact to shape creator mental health, economic outcomes, and behavioral patterns, offering an accessible framework for studying the economic and psychological dynamics of platform labor.
 
-![Dashboard Overview](static/img/dashboard.png)
+![Dashboard Overview](static/img/preview.png)
 
 ---
 
@@ -293,7 +293,7 @@ make docker-build
 make docker-run
 ```
 
-See [`deploy/DEPLOYMENT_GUIDE.md`](deploy/DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+See [`guides/DEPLOYMENT_GUIDE.md`](guides/DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
 
 ### Available Commands
 
@@ -433,6 +433,7 @@ platform-capitalism/
    **Note:** The simulation works perfectly without HF API key - it uses intelligent template-based fallback generation.
 
 **Other Features in Development:**
+- **Controversial/Cringe Content Modeling**: Strategy-based content quality dimensions (authenticity, controversy, clickbait) with engagement vs. wellbeing trade-offs - [Design Doc](guides/CONTROVERSIAL_CONTENT_FEATURE.md)
 - Markov chain fallback: Statistical content generation
 - Multi-platform support: TikTok, Instagram, YouTube
 - Advanced analytics: Correlation analysis, trend detection

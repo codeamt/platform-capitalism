@@ -62,8 +62,7 @@ plugins:
   - search
   - mermaid2:
       arguments:
-        theme: |
-          ^(JSON.parse(__md_get("__palette").index == 1)) ? 'dark' : 'default'
+        theme: 'default'
         themeVariables:
           primaryColor: '#61DAFB'
           primaryTextColor: '#000'
@@ -82,6 +81,7 @@ plugins:
           titleColor: '#000'
           edgeLabelBackground: '#fff'
           nodeTextColor: '#000'
+          darkMode: false
 
 nav:
   - Home: index.md
